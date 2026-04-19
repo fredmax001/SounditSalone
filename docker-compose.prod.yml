@@ -167,7 +167,7 @@ services:
     restart: always
     command: celery -A tasks beat --loglevel=info
     environment:
-      DATABASE_URL: postgresql://${DB_USER:?}:${DB_PASSWORD:?}@db:5432/${DB_NAME:?}
+      DATABASE_URL: postgresql://${DB_USER:?}:${DB_PASSWORD:?}@d{DB_NAME:?}
       REDIS_URL: redis://:${REDIS_PASSWORD:?}
       ENVIRONMENT: production
       SECRET_KEY: ${SECRET_KEY}
