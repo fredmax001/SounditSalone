@@ -59,7 +59,7 @@ services:
     restart: always
     environment:
       # Database
-      DATABASE_URL: postgresql://${DB_USER:?}:${DB_PASSWORD:?}@db:5432/${DB_NAME:?}
+      DATABASE_URL: postgresql://${DB_USER:?}:${DB_PASSWORD:?}@db:
       
       # Redis
       REDIS_URL: redis://:${REDIS_PASSWORD:?}@redis:
