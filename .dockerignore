@@ -1,0 +1,64 @@
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+.pytest_cache
+.mypy_cache
+.venv
+venv
+
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# IDEs
+.vscode
+.idea
+*.swp
+*.swo
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads (should be mounted as volume)
+static/uploads/
+uploads/
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Tests
+tests/
+.coverage
+htmlcov/
+
+# CI/CD
+deploy/
+scripts/
+
+# Documentation
+README.md
+DEPLOYMENT.md
+MOBILE.md
+
+# Alembic (run migrations separately)
+alembic/
+alembic.ini

@@ -1,0 +1,34 @@
+{
+    "include": [
+        "api/",
+        "main.py",
+        "*.py"
+    ],
+    "exclude": [
+        ".venv/",
+        "static/",
+        "uploads/",
+        "__pycache__/",
+        "*.pyc",
+        "api/ai_backups/",
+        "deploy_server.sh"
+    ],
+    "pythonVersion": "3.9",
+    "typeCheckingMode": "off",
+    "useLibraryCodeForTypes": true,
+    "reportMissingImports": "none",
+    "reportMissingTypeStubs": "none",
+    "pythonPlatform": "Darwin",
+    "venvPath": ".",
+    "venv": ".venv",
+    "reportGeneralTypeIssues": "none",
+    "reportAttributeAccessIssue": "none",
+    "reportArgumentType": "none",
+    "reportAssignmentType": "none",
+    "reportOptionalMemberAccess": "none",
+    "reportOptionalCall": "none",
+    "reportOptionalOperand": "none",
+    "reportOptionalIterable": "none",
+    "reportOptionalContextManager": "none",
+    "reportOptionalSubscript": "none"
+}

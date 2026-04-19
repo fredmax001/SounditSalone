@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./soundit_local.db
+      - SECRET_KEY=dev-secret-key-change-in-production
+      - ENVIRONMENT=development
+    volumes:
+      - ./:/app
+      - ./soundit_local.db:/app/soundit_local.db
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - soundit-network
+
+networks:
+  soundit-network:
+    driver: bridge
