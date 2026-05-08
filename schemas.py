@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, List
+from typing import Any, Dict, List, Optional
 from datetime import datetime
 from enum import Enum
 from models import EventStatus, TicketStatus, PaymentStatus, PaymentMethod
@@ -1349,3 +1349,244 @@ class UserFavoriteTeamCreate(UserFavoriteTeamBase):
     pass
 
 
+
+
+# ==================== MONIME SCHEMAS ====================
+
+class MonimeAmount(BaseModel):
+    currency: Optional[str] = None
+    value: Optional[int] = None
+
+
+class MonimeCustomer(BaseModel):
+    name: Optional[str] = None
+
+
+class MonimeRecurrentPaymentTarget(BaseModel):
+    expected_payment_count: Optional[int] = Field(default=None, alias="expectedPaymentCount")
+    expected_payment_total: Optional[MonimeAmount] = Field(default=None, alias="expectedPaymentTotal")
+
+
+class MonimeChannelData(BaseModel):
+    provider_id: Optional[str] = Field(default=None, alias="providerId")
+    account_id: Optional[str] = Field(default=None, alias="accountId")
+    reference: Optional[str] = None
+
+
+class MonimeProcessedPaymentData(BaseModel):
+    amount: Optional[MonimeAmount] = None
+    order_id: Optional[str] = Field(default=None, alias="orderId")
+    payment_id: Optional[str] = Field(default=None, alias="paymentId")
+    order_number: Optional[str] = Field(default=None, alias="orderNumber")
+    channel_data: Optional[MonimeChannelData] = Field(default=None, alias="channelData")
+    financial_transaction_reference: Optional[str] = Field(default=None, alias="financialTransactionReference")
+    metadata: Optional[Dict[str, Any]] = None
+
+
+class MonimeOwnershipOwner(BaseModel):
+    id: Optional[str] = None
+    type: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+
+class MonimeOwnershipGraph(BaseModel):
+    owner: Optional[MonimeOwnershipOwner] = None
+
+
+# ── USSD Payment Code ──
+
+class MonimeUssdCode(BaseModel):
+    id: Optional[str] = None
+    mode: str = "one_time"
+    status: str = "pending"
+    name: str = ""
+    amount: Optional[MonimeAmount] = None
+    enable: Optional[bool] = None
+    expire_time: Optional[str] = Field(default=None, alias="expireTime")
+    customer: Optional[MonimeCustomer] = None
+    ussd_code: Optional[str] = Field(default=None, alias="ussdCode")
+    reference: Optional[str] = None
+    authorized_providers: Optional[List[List[str]]] = Field(default=None, alias="authorizedProviders")
+    authorized_phone_number: Optional[str] = Field(default=None, alias="authorizedPhoneNumber")
+    recurrent_payment_target: Optional[MonimeRecurrentPaymentTarget] = Field(default=None, alias="recurrentPaymentTarget")
+    financial_account_id: Optional[str] = Field(default=None, alias="financialAccountId")
+    processed_payment_data: Optional[MonimeProcessedPaymentData] = Field(default=None, alias="processedPaymentData")
+    create_time: Optional[str] = Field(default=None, alias="createTime")
+    update_time: Optional[str] = Field(default=None, alias="updateTime")
+    ownership_graph: Optional[MonimeOwnershipGraph] = Field(default=None, alias="ownershipGraph")
+    metadata: Optional[Dict[str, Any]] = None
+
+    class Config:
+        populate_by_name = True
+
+
+class MonimeUssdCodeCreate(BaseModel):
+    name: str
+    amount_value: int = Field(..., alias="amountValue")
+    currency: str = "SLE"
+    mode: str = "one_time"
+    duration: str = "10m"
+    authorized_providers: Optional[List[str]] = Field(default=None, alias="authorizedProviders")
+    authorized_phone_number: Optional[str] = Field(default=None, alias="authorizedPhoneNumber")
+    reference: Optional[str] = None
+    financial_account_id: Optional[str] = Field(default=None, alias="financialAccountId")
+    metadata: Optional[Dict[str, str]] = None
+    customer_name: Optional[str] = Field(default=None, alias="customerName")
+
+    class Config:
+        populate_by_name = True
+
+
+# ── Payment / Payout ──
+
+class MonimePayoutSource(BaseModel):
+    financial_account_id: Optional[str] = Field(default=None, alias="financialAccountId")
+    transaction_reference: Optional[str] = Field(default=None, alias="transactionReference")
+
+
+class MonimePayoutDestination(BaseModel):
+    type: str  # "momo" | "bank" | "wallet"
+    provider_id: Optional[str] = Field(default=None, alias="providerId")
+    phone_number: Optional[str] = Field(default=None, alias="phoneNumber")
+    account_number: Optional[str] = Field(default=None, alias="accountNumber")
+    branch_code: Optional[str] = Field(default=None, alias="branchCode")
+    account_name: Optional[str] = Field(default=None, alias="accountName")
+
+
+class MonimePayoutFee(BaseModel):
+    type: Optional[str] = None
+    amount: Optional[MonimeAmount] = None
+
+
+class MonimeFailureDetail(BaseModel):
+    code: str = "unknown"
+    message: Optional[str] = None
+
+
+class MonimePayment(BaseModel):
+    id: Optional[str] = None
+    status: str = "pending"
+    amount: Optional[MonimeAmount] = None
+    source: Optional[MonimePayoutSource] = None
+    destination: Optional[MonimePayoutDestination] = None
+    fees: Optional[List[MonimePayoutFee]] = None
+    failure_detail: Optional[MonimeFailureDetail] = Field(default=None, alias="failureDetail")
+    create_time: Optional[str] = Field(default=None, alias="createTime")
+    update_time: Optional[str] = Field(default=None, alias="updateTime")
+    ownership_graph: Optional[MonimeOwnershipGraph] = Field(default=None, alias="ownershipGraph")
+    metadata: Optional[Dict[str, Any]] = None
+
+    class Config:
+        populate_by_name = True
+
+
+class MonimePaymentCreate(BaseModel):
+    amount_value: int = Field(..., alias="amountValue")
+    currency: str = "SLE"
+    destination: MonimePayoutDestination
+    source_financial_account_id: Optional[str] = Field(default=None, alias="sourceFinancialAccountId")
+    metadata: Optional[Dict[str, str]] = None
+
+    class Config:
+        populate_by_name = True
+
+
+# ── Bank Provider ──
+
+class MonimeBankProvider(BaseModel):
+    id: str
+    name: str
+    country: str = "SL"
+    type: str = "bank"
+    currency: Optional[str] = None
+    supported_currencies: Optional[List[str]] = Field(default=None, alias="supportedCurrencies")
+    requires_account_number: bool = Field(default=True, alias="requiresAccountNumber")
+    requires_branch_code: bool = Field(default=False, alias="requiresBranchCode")
+    active: bool = True
+
+    class Config:
+        populate_by_name = True
+
+
+# ── Webhook Event ──
+
+class MonimeWebhookEventObject(BaseModel):
+    id: Optional[str] = None
+    type: Optional[str] = None
+
+
+class MonimeWebhookEventData(BaseModel):
+    id: Optional[str] = None
+    status: Optional[str] = None
+    reference: Optional[str] = None
+    amount: Optional[MonimeAmount] = None
+    failure_detail: Optional[MonimeFailureDetail] = Field(default=None, alias="failureDetail")
+    metadata: Optional[Dict[str, Any]] = None
+
+
+class MonimeWebhookEventPayload(BaseModel):
+    api_version: Optional[str] = Field(default=None, alias="apiVersion")
+    event: Dict[str, Any] = {}
+    object: Optional[MonimeWebhookEventObject] = None
+    data: Optional[MonimeWebhookEventData] = None
+
+    class Config:
+        populate_by_name = True
+
+
+class MonimeWebhookLog(BaseModel):
+    id: int
+    event_id: Optional[str] = None
+    event_name: str
+    object_type: Optional[str] = None
+    object_id: Optional[str] = None
+    payload: Dict[str, Any]
+    signature: Optional[str] = None
+    processed: bool = False
+    processing_result: Optional[str] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class MonimeWebhookLogCreate(BaseModel):
+    event_name: str
+    event_id: Optional[str] = None
+    object_type: Optional[str] = None
+    object_id: Optional[str] = None
+    payload: Dict[str, Any]
+    signature: Optional[str] = None
+
+
+# ── Request/Response wrappers ──
+
+class MonimeUssdCodeResponse(BaseModel):
+    success: bool
+    code_id: Optional[str] = None
+    ussd_code: Optional[str] = None
+    status: Optional[str] = None
+    message: str
+    raw: Optional[Dict[str, Any]] = None
+
+
+class MonimePaymentResponse(BaseModel):
+    success: bool
+    payment_id: Optional[str] = None
+    status: Optional[str] = None
+    amount: Optional[float] = None
+    currency: Optional[str] = None
+    destination: Optional[str] = None
+    message: str
+    raw: Optional[Dict[str, Any]] = None
+
+
+class MonimeBankListResponse(BaseModel):
+    success: bool
+    banks: List[MonimeBankProvider]
+
+
+class MonimeWebhookLogListResponse(BaseModel):
+    success: bool
+    logs: List[MonimeWebhookLog]
+    total: int

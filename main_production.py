@@ -39,6 +39,17 @@ from api import user_dashboard
 from api import tickets
 from api import sports
 from api import orange_money
+from api import otp
+from api import monime
+from api import music
+from api import vendors
+from api import withdrawals
+from api import wallet
+from api import favorites
+from api import subscriptions
+from api import bookings_artists
+from api import profiles
+from api import admin_stubs
 
 # Get settings
 settings = get_settings()
@@ -109,7 +120,18 @@ if _env_origins:
     ALLOWED_ORIGINS = [o.strip() for o in _env_origins.split(",")]
     logger.info(f"CORS configured with {len(ALLOWED_ORIGINS)} origins from environment")
 else:
-    raise RuntimeError("CORS_ORIGINS environment variable is REQUIRED in production")
+    # Fallback to sensible defaults for local/staging deployments
+    ALLOWED_ORIGINS = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+        "capacitor://localhost",
+        "http://localhost",
+        "http://127.0.0.1",
+    ]
+    logger.warning("CORS_ORIGINS not set; using default local development origins")
 
 app.add_middleware(
     CORSMiddleware,
@@ -194,6 +216,31 @@ app.include_router(user_dashboard.router, prefix="/api/v1")
 app.include_router(tickets.router, prefix="/api/v1")
 app.include_router(sports.router, prefix="/api/v1")
 app.include_router(orange_money.router, prefix="/api/v1")
+app.include_router(otp.router, prefix="/api/v1")
+app.include_router(monime.router, prefix="/api/v1")
+app.include_router(music.router, prefix="/api/v1")
+app.include_router(vendors.router, prefix="/api/v1")
+app.include_router(withdrawals.router, prefix="/api/v1")
+app.include_router(wallet.router, prefix="/api/v1")
+app.include_router(favorites.router, prefix="/api/v1")
+app.include_router(subscriptions.router, prefix="/api/v1")
+app.include_router(bookings_artists.router, prefix="/api/v1")
+app.include_router(profiles.router, prefix="/api/v1")
+app.include_router(admin_stubs.router, prefix="/api/v1")
+
+# SPA catch-all — serve static files from dist, fallback to index.html
+if os.path.isdir("app/dist"):
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        # Let API and static uploads mounts handle their own paths
+        if full_path.startswith("api/") or full_path.startswith("static/"):
+            raise HTTPException(status_code=404)
+        # Serve actual files (assets, images, favicons, etc.)
+        file_path = os.path.join("app/dist", full_path)
+        if full_path and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        # SPA fallback for client-side routing
+        return FileResponse("app/dist/index.html")
 
 
 @app.exception_handler(Exception)
@@ -206,18 +253,6 @@ async def global_exception_handler(request: Request, exc: Exception):
         status_code=500,
         content={"detail": "An internal server error occurred"}
     )
-
-
-@app.get("/")
-def root():
-    """Root endpoint"""
-    return {
-        "name": settings.APP_NAME,
-        "version": "1.0.0",
-        "environment": "production",
-        "status": "running",
-        "timestamp": datetime.utcnow().isoformat()
-    }
 
 
 @app.get("/health")
@@ -334,23 +369,6 @@ def metrics():
     except Exception as e:
         logger.error(f"Metrics error: {e}")
         return {"error": "Failed to gather metrics"}
-
-
-# SPA catch-all route - serve index.html for non-API routes
-@app.get("/{full_path:path}")
-async def serve_spa(full_path: str):
-    """Serve the SPA for client-side routing"""
-    # Don't interfere with API or static routes
-    if full_path.startswith("api/") or full_path.startswith("static/"):
-        raise HTTPException(status_code=404)
-    
-    # Try to serve the built frontend
-    index_path = os.path.join("app", "dist", "index.html")
-    if os.path.exists(index_path):
-        return FileResponse(index_path)
-    
-    # Fallback if frontend not built
-    raise HTTPException(status_code=404, detail="Frontend not built")
 
 
 if __name__ == "__main__":

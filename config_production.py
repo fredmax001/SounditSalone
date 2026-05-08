@@ -14,11 +14,11 @@ from pydantic_settings import BaseSettings
 from functools import lru_cache
 from pydantic import field_validator
 
-# Load environment variables from .env.production file
+# Load environment variables from .env.production file only in production
 try:
     from dotenv import load_dotenv
     env_path = os.path.join(os.path.dirname(__file__), '.env.production')
-    if os.path.exists(env_path):
+    if os.path.exists(env_path) and os.getenv('ENVIRONMENT', '').lower() == 'production':
         load_dotenv(env_path, override=True)
 except ImportError:
     pass  # python-dotenv not installed, rely on system env vars

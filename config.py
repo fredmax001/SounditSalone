@@ -64,6 +64,13 @@ class Settings(BaseSettings):
     AFRICELL_MONEY_API_KEY: str = ""
     AFRICELL_MONEY_MERCHANT_ID: str = ""
     
+    # Monime Payment Platform (Sierra Leone)
+    MONIME_API_TOKEN: str = ""
+    MONIME_SPACE_ID: str = ""
+    MONIME_WEBHOOK_SECRET: str = ""
+    MONIME_API_VERSION: str = "caph.2025-08-23"
+    MONIME_BASE_URL: str = "https://api.monime.io"
+    
     # AWS S3 (for file uploads)
     AWS_ACCESS_KEY_ID: str = ""
     AWS_SECRET_ACCESS_KEY: str = ""

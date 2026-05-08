@@ -47,6 +47,7 @@ class PaymentMethod(str, enum.Enum):
     MOBILE_MONEY = "mobile_money"
     ORANGE_MONEY = "orange_money"
     AFRICELL_MONEY = "africell_money"
+    MONIME = "monime"
     CASH_AT_VENUE = "cash_at_venue"
     APPLE_PAY = "apple_pay"
     GOOGLE_PAY = "google_pay"
@@ -163,6 +164,7 @@ class User(Base):
     preferred_city = Column(Enum(City), nullable=True)
     preferred_language = Column(String(10), default="en")
     notifications_enabled = Column(Boolean, default=True)
+    settings_json = Column(JSON, nullable=True, default=dict)
     
     # Foreigner mode
     foreigner_mode = Column(Boolean, default=False)
@@ -224,6 +226,7 @@ class VenueProfile(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), unique=True)
+    venue_id = Column(Integer, ForeignKey("venues.id"), nullable=True, index=True)
     
     # Venue Info
     venue_name = Column(String(200), nullable=False)
@@ -268,6 +271,7 @@ class VenueProfile(Base):
     
     # Relationships
     user = relationship("User", back_populates="venue_profile")
+    venue = relationship("Venue", back_populates="profiles")
     subscriptions = relationship("VenueSubscription", back_populates="venue")
 
 
@@ -548,6 +552,7 @@ class Venue(Base):
     
     # Relationships
     events = relationship("Event", back_populates="venue")
+    profiles = relationship("VenueProfile", back_populates="venue")
 
 
 class SportsCourt(Base):
@@ -1544,3 +1549,64 @@ class ContactSubmission(Base):
     replied_by = Column(String(255), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+
+class MonimePayment(Base):
+    """Stored Monime payment / payout records for audit trail."""
+    __tablename__ = "monime_payments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    monime_payment_id = Column(String(100), unique=True, index=True, nullable=True)
+    payment_type = Column(String(50), default="payout")  # payout | checkout_session | payment_code
+    status = Column(String(50), default="pending")
+    currency = Column(String(10), default="SLE")
+    amount_value = Column(Integer, nullable=True)  # minor units
+    source_account_id = Column(String(100), nullable=True)
+    destination_type = Column(String(50), nullable=True)  # momo | bank | wallet
+    destination_provider_id = Column(String(50), nullable=True)
+    destination_phone = Column(String(20), nullable=True)
+    destination_account = Column(String(100), nullable=True)
+    fees = Column(JSON, nullable=True)
+    failure_code = Column(String(50), nullable=True)
+    failure_message = Column(Text, nullable=True)
+    metadata_json = Column(JSON, nullable=True)
+    raw_response = Column(JSON, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Optional link to local order / payout request
+    order_id = Column(Integer, ForeignKey("orders.id"), nullable=True)
+    order = relationship("Order", foreign_keys=[order_id])
+
+
+class MonimeWebhookLog(Base):
+    """Audit log for all Monime webhook events received."""
+    __tablename__ = "monime_webhook_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    event_id = Column(String(100), nullable=True, index=True)
+    event_name = Column(String(100), nullable=False, index=True)
+    object_type = Column(String(50), nullable=True)
+    object_id = Column(String(100), nullable=True, index=True)
+    payload = Column(JSON, nullable=False)
+    signature = Column(String(255), nullable=True)
+    processed = Column(Boolean, default=False)
+    processing_result = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class MonimeBankProvider(Base):
+    """Cached bank provider list from Monime."""
+    __tablename__ = "monime_bank_providers"
+
+    id = Column(String(50), primary_key=True)
+    name = Column(String(100), nullable=False)
+    country = Column(String(10), default="SL")
+    provider_type = Column(String(50), default="bank")
+    currency = Column(String(10), nullable=True)
+    supported_currencies = Column(JSON, nullable=True)
+    requires_account_number = Column(Boolean, default=True)
+    requires_branch_code = Column(Boolean, default=False)
+    active = Column(Boolean, default=True)
+    metadata_json = Column(JSON, nullable=True)
+    cached_at = Column(DateTime(timezone=True), server_default=func.now())
