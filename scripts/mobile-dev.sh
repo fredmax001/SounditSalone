@@ -32,7 +32,7 @@ export CORS_ORIGINS="http://localhost:5173,http://${LOCAL_IP}:5173"
 # Start backend in background
 echo "🚀 Starting backend on 0.0.0.0:8000 ..."
 cd "$(dirname "$0")/.."
-python main.py &
+source .venv/bin/activate && python main.py &
 BACKEND_PID=$!
 
 # Wait for backend

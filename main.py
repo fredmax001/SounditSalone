@@ -25,22 +25,19 @@ from api import cart
 from api import city_guide
 from api import organizer
 from api import venue_dashboard
-from api import sports_dashboard
 from api import user_dashboard
-from api import sports
 from api import tickets
 from api import orange_money
 from api import monime
-from api import music
 from api import vendors
-from api import withdrawals
-from api import wallet
 from api import favorites
 from api import subscriptions
 from api import bookings_artists
 from api import profiles
 from api import admin_stubs
 from api import deals
+from api import power_banks
+from api import restaurant_reservations
 
 settings = get_settings()
 
@@ -123,22 +120,20 @@ app.include_router(cart.router, prefix="/api/v1")
 app.include_router(city_guide.router, prefix="/api/v1")
 app.include_router(organizer.router, prefix="/api/v1")
 app.include_router(venue_dashboard.router, prefix="/api/v1")
-app.include_router(sports_dashboard.router, prefix="/api/v1")
-app.include_router(sports.router, prefix="/api/v1")
+
 app.include_router(user_dashboard.router, prefix="/api/v1")
 app.include_router(tickets.router, prefix="/api/v1")
 app.include_router(orange_money.router, prefix="/api/v1")
 app.include_router(monime.router, prefix="/api/v1")
-app.include_router(music.router, prefix="/api/v1")
 app.include_router(vendors.router, prefix="/api/v1")
-app.include_router(withdrawals.router, prefix="/api/v1")
-app.include_router(wallet.router, prefix="/api/v1")
 app.include_router(favorites.router, prefix="/api/v1")
 app.include_router(subscriptions.router, prefix="/api/v1")
 app.include_router(bookings_artists.router, prefix="/api/v1")
 app.include_router(profiles.router, prefix="/api/v1")
 app.include_router(admin_stubs.router, prefix="/api/v1")
 app.include_router(deals.router, prefix="/api/v1")
+app.include_router(power_banks.router, prefix="/api/v1")
+app.include_router(restaurant_reservations.router, prefix="/api/v1")
 
 
 @app.get("/")

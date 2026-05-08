@@ -43,15 +43,14 @@ def init_db():
     """Initialize database tables"""
     # Import all models to ensure they're registered with Base
     from models import (
-        User, OrganizerProfile, VenueProfile, SportsProfile, BusinessProfile,
+        User, OrganizerProfile, VenueProfile, BusinessProfile,
         AdminUser, SystemConfig, AdminActivityLog, Club, FoodSpot, Venue,
-        SportsBooking, Booking, SubscriptionTier, VenueSubscription,
-        OrganizerSubscription, SportsSubscription, SportsPricingRule,
-        PayoutRequest, VerificationRequest, Event,
+        Booking, SubscriptionTier, VenueSubscription,
+        OrganizerSubscription,
+        VerificationRequest, Event,
         TicketTier, Ticket, Order, OrderItem, PaymentVerification,
         EventFollow, OTPCode, OrganizerFollow,
         Notification, Recap, RecapLike,
-        SportsLeague, Team, Fixture, FixtureEvent, LeagueStanding, UserFavoriteTeam
     )
     from models_platform import (
         VenueManager, Reservation,
@@ -108,7 +107,7 @@ def _seed_platform_defaults() -> None:
                 "name": "Finance Admin",
                 "role_type": "finance_admin",
                 "description": "Transactions, payouts, and commission control",
-                "permissions": ["finance.read", "finance.write", "payouts.manage"],
+                "permissions": ["finance.read", "finance.write"],
             },
             {
                 "name": "Marketing Admin",
@@ -148,7 +147,6 @@ def _seed_platform_defaults() -> None:
             ("secondary_currency_code", {"value": "USD"}, "local", "Optional display currency"),
             ("timezone", {"value": "Africa/Freetown"}, "local", "Primary platform timezone"),
             ("default_commission_rate", {"value": 0.04}, "revenue", "Default commission rate"),
-            ("minimum_payout_sll", {"value": 50000}, "revenue", "Minimum payout in SLL"),
         ]
 
         for key, value, category, description in default_config:

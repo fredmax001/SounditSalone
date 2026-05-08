@@ -9,7 +9,6 @@ class UserRole(str, enum.Enum):
     USER = "user"
     ORGANIZER = "organizer"
     VENUE = "venue"
-    SPORT = "sport"
     ADMIN = "admin"
     SUPER_ADMIN = "super_admin"
 
@@ -64,12 +63,6 @@ class City(str, enum.Enum):
     WATERLOO = "waterloo"
 
 
-class PayoutStatus(str, enum.Enum):
-    PENDING = "pending"
-    APPROVED = "approved"
-    REJECTED = "rejected"
-    PAID = "paid"
-
 
 class VerificationStatus(str, enum.Enum):
     PENDING = "pending"
@@ -80,7 +73,6 @@ class VerificationStatus(str, enum.Enum):
 class VerificationType(str, enum.Enum):
     ORGANIZER = "organizer"
     VENUE = "venue"
-    SPORT = "sport"
 
 
 class AdminRole(str, enum.Enum):
@@ -108,28 +100,7 @@ class RecapStatus(str, enum.Enum):
     PUBLISHED = "published"
 
 
-class FixtureStatus(str, enum.Enum):
-    SCHEDULED = "scheduled"
-    LIVE = "live"
-    HALFTIME = "halftime"
-    COMPLETED = "completed"
-    POSTPONED = "postponed"
-    CANCELLED = "cancelled"
 
-
-class MatchEventType(str, enum.Enum):
-    GOAL = "goal"
-    YELLOW_CARD = "yellow_card"
-    RED_CARD = "red_card"
-    SUBSTITUTION = "substitution"
-    INJURY = "injury"
-    PENALTY = "penalty"
-
-
-class LeagueStatus(str, enum.Enum):
-    ACTIVE = "active"
-    COMPLETED = "completed"
-    UPCOMING = "upcoming"
 
 
 class User(Base):
@@ -178,12 +149,12 @@ class User(Base):
     tickets = relationship("Ticket", back_populates="user", foreign_keys="Ticket.user_id")
     organizer_profile = relationship("OrganizerProfile", back_populates="user", uselist=False)
     venue_profile = relationship("VenueProfile", back_populates="user", uselist=False)
-    sports_profile = relationship("SportsProfile", back_populates="user", uselist=False)
     vendor_profile = relationship("VendorProfile", back_populates="user", uselist=False)
     business_profile = relationship("BusinessProfile", back_populates="user", uselist=False)
-    payout_requests = relationship("PayoutRequest", back_populates="user", foreign_keys="PayoutRequest.user_id")
     verification_requests = relationship("VerificationRequest", back_populates="user", foreign_keys="VerificationRequest.user_id")
     bookings = relationship("Booking", back_populates="user")
+    power_bank_rentals = relationship("PowerBankRental", back_populates="user")
+    restaurant_reservations = relationship("RestaurantReservation", back_populates="user")
 
 
 class OrganizerProfile(Base):
@@ -273,20 +244,8 @@ class VenueProfile(Base):
     user = relationship("User", back_populates="venue_profile")
     venue = relationship("Venue", back_populates="profiles")
     subscriptions = relationship("VenueSubscription", back_populates="venue")
+    power_bank_stations = relationship("PowerBankStation", back_populates="venue")
 
-
-class SportsProfile(Base):
-    """Sports facility owner profile - similar to venue but optimized for sports"""
-    __tablename__ = "sports_profiles"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), unique=True)
-
-    # Relationships
-    user = relationship("User", back_populates="sports_profile")
-    courts = relationship("SportsCourt", back_populates="facility")
-    bookings = relationship("SportsBooking", back_populates="facility")
-    subscriptions = relationship("SportsSubscription", back_populates="sports")
 
 
 class VendorProfile(Base):
@@ -462,7 +421,6 @@ class Club(Base):
     description = Column(Text, nullable=True)
     
     # Music & Vibe
-    music_genres = Column(JSON, nullable=True)
     is_afrobeat_friendly = Column(Boolean, default=False)
     
     # Images
@@ -518,6 +476,7 @@ class FoodSpot(Base):
     
     # Relationships
     business_claimed_by = relationship("BusinessProfile", back_populates="food_spots")
+    reservations = relationship("RestaurantReservation", back_populates="food_spot")
 
 
 class Venue(Base):
@@ -555,84 +514,6 @@ class Venue(Base):
     profiles = relationship("VenueProfile", back_populates="venue")
 
 
-class SportsCourt(Base):
-    """Individual court/pitch at a sports facility"""
-    __tablename__ = "sports_courts"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    facility_id = Column(Integer, ForeignKey("sports_profiles.id"), nullable=False)
-    
-    # Court Info
-    name = Column(String(100), nullable=False)  # Pitch A, Court B
-    sport_type = Column(String(50), nullable=False)  # football_5a, basketball, tennis, etc.
-    surface_type = Column(String(50), nullable=False)  # grass, astroturf, concrete, wood
-    capacity = Column(Integer, nullable=True)
-    
-    # Amenities
-    has_floodlights = Column(Boolean, default=False)
-    has_changing_rooms = Column(Boolean, default=False)
-    has_showers = Column(Boolean, default=False)
-    has_parking = Column(Boolean, default=False)
-    has_seating = Column(Boolean, default=False)
-    has_scoreboard = Column(Boolean, default=False)
-    
-    # Status
-    is_active = Column(Boolean, default=True)
-    
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
-    # Relationships
-    facility = relationship("SportsProfile", back_populates="courts")
-    bookings = relationship("SportsBooking", back_populates="court")
-    pricing_rules = relationship("SportsPricingRule", back_populates="court")
-
-
-class SportsBooking(Base):
-    """Hourly/daily sports facility booking"""
-    __tablename__ = "sports_bookings"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    facility_id = Column(Integer, ForeignKey("sports_profiles.id"), nullable=False, index=True)
-    court_id = Column(Integer, ForeignKey("sports_courts.id"), nullable=False, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
-    
-    # Booking info
-    customer_name = Column(String(100), nullable=False)
-    customer_phone = Column(String(20), nullable=False)
-    customer_email = Column(String(255), nullable=True)
-    
-    # Time
-    booking_date = Column(DateTime(timezone=True), nullable=False)
-    start_time = Column(String(5), nullable=False)  # 18:00
-    end_time = Column(String(5), nullable=False)    # 20:00
-    duration_hours = Column(Integer, nullable=False)
-    
-    # Team/Group info
-    team_name = Column(String(100), nullable=True)
-    num_players = Column(Integer, nullable=True)
-    
-    # Payment
-    total_amount = Column(Float, nullable=False)
-    currency = Column(String(3), default="SLE")
-    payment_status = Column(String(50), default="pending")  # pending, completed, refunded
-    payment_id = Column(String(255), nullable=True)
-    
-    # Status
-    status = Column(Enum(BookingStatus), default=BookingStatus.PENDING)
-    checked_in = Column(Boolean, default=False)
-    checked_in_at = Column(DateTime(timezone=True), nullable=True)
-    
-    # Notes
-    notes = Column(Text, nullable=True)
-    
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
-    # Relationships
-    facility = relationship("SportsProfile", back_populates="bookings")
-    court = relationship("SportsCourt", back_populates="bookings")
-    user = relationship("User")
 
 
 class Booking(Base):
@@ -689,7 +570,6 @@ class SubscriptionTier(Base):
     # Relationships
     venue_subscriptions = relationship("VenueSubscription", back_populates="tier")
     organizer_subscriptions = relationship("OrganizerSubscription", back_populates="tier")
-    sports_subscriptions = relationship("SportsSubscription", back_populates="tier")
 
 
 class VenueSubscription(Base):
@@ -747,85 +627,9 @@ class OrganizerSubscription(Base):
     tier = relationship("SubscriptionTier", back_populates="organizer_subscriptions")
 
 
-class SportsSubscription(Base):
-    """Active subscription for a sports facility"""
-    __tablename__ = "sports_subscriptions"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    sports_id = Column(Integer, ForeignKey("sports_profiles.id"), nullable=False)
-    tier_id = Column(Integer, ForeignKey("subscription_tiers.id"), nullable=False)
-    
-    # Status
-    status = Column(String(50), default="active")
-    
-    # Dates
-    started_at = Column(DateTime(timezone=True), nullable=False)
-    expires_at = Column(DateTime(timezone=True), nullable=False)
-    auto_renew = Column(Boolean, default=True)
-    
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
-    # Relationships
-    sports = relationship("SportsProfile", back_populates="subscriptions")
-    tier = relationship("SubscriptionTier", back_populates="sports_subscriptions")
-
-
-class SportsPricingRule(Base):
-    """Dynamic pricing for sports courts by time slot"""
-    __tablename__ = "sports_pricing_rules"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    court_id = Column(Integer, ForeignKey("sports_courts.id"), nullable=False)
-    
-    # Time period
-    day_of_week = Column(String(10), nullable=False)  # monday, tuesday, etc. or 'weekday', 'weekend'
-    start_time = Column(String(5), nullable=False)  # 06:00
-    end_time = Column(String(5), nullable=False)    # 18:00
-    
-    # Pricing
-    hourly_rate_sle = Column(Integer, nullable=False)
-    
-    # Status
-    is_active = Column(Boolean, default=True)
-    
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    
-    # Relationships
-    court = relationship("SportsCourt", back_populates="pricing_rules")
 
 
 # REMOVED: VendorProfile, Product, EventVendor, BookingRequest, BookingMessage, ArtistReview, ArtistAvailability, ArtistTrack
-
-class PayoutRequest(Base):
-    __tablename__ = "payout_requests"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    
-    # User requesting payout
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    
-    # Amount
-    amount = Column(Float, nullable=False)
-    currency = Column(String(3), default="SLE")
-    
-    # Status
-    status = Column(Enum(PayoutStatus), default=PayoutStatus.PENDING)
-    
-    # Payment method and details
-    payment_method = Column(String(50), nullable=True)
-    payment_details = Column(JSON, nullable=True)
-    
-    # Timestamps
-    requested_at = Column(DateTime(timezone=True), server_default=func.now())
-    processed_at = Column(DateTime(timezone=True), nullable=True)
-    
-    # Processed by
-    processed_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    
-    # Relationships
-    user = relationship("User", back_populates="payout_requests", foreign_keys=[user_id])
-    processed_by = relationship("User", foreign_keys=[processed_by_id])
 
 
 class VerificationRequest(Base):
@@ -1315,221 +1119,99 @@ RecapLike.__table_args__ = (
 )
 
 
+
+
 # ═══════════════════════════════════════════════════════════════════════════
-# SPORTS MATCH TICKETING SYSTEM
+# POWER BANK RENTAL SYSTEM
 # ═══════════════════════════════════════════════════════════════════════════
 
-class SportsLeague(Base):
-    """Sports league (Premier League, Basketball League, etc.)"""
-    __tablename__ = "sports_leagues"
+class PowerBankStationStatus(str, enum.Enum):
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    MAINTENANCE = "maintenance"
+
+
+class PowerBankRentalStatus(str, enum.Enum):
+    RESERVED = "reserved"
+    ACTIVE = "active"
+    RETURNED = "returned"
+    OVERDUE = "overdue"
+    CANCELLED = "cancelled"
+
+
+class PowerBankStation(Base):
+    """A physical power bank charging station at a venue."""
+    __tablename__ = "power_bank_stations"
     
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255), nullable=False, unique=True)
-    short_name = Column(String(50), nullable=True)
-    sport_type = Column(String(50), nullable=False)  # football, basketball, tennis, volleyball
-    season = Column(String(20), nullable=False)  # "2024/25", "2025"
-    logo_url = Column(String(500), nullable=True)
-    description = Column(Text, nullable=True)
-    
-    # Organizer
-    organizer_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    
-    # Status
-    status = Column(Enum(LeagueStatus), default=LeagueStatus.ACTIVE)
-    
-    # Dates
-    start_date = Column(DateTime(timezone=True), nullable=True)
-    end_date = Column(DateTime(timezone=True), nullable=True)
-    
-    # Featured on platform
-    featured = Column(Boolean, default=False)
-    
-    # Timestamps
+    name = Column(String(200), nullable=False)
+    venue_id = Column(Integer, ForeignKey("venue_profiles.id"), nullable=True)
+    location_description = Column(Text, nullable=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    status = Column(Enum(PowerBankStationStatus), default=PowerBankStationStatus.ACTIVE)
+    total_units = Column(Integer, default=10)
+    available_units = Column(Integer, default=10)
+    price_per_hour = Column(Float, default=5.0)  # SLE
+    max_rental_hours = Column(Integer, default=24)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
-    # Relationships
-    organizer = relationship("User")
-    teams = relationship("Team", back_populates="league")
-    fixtures = relationship("Fixture", back_populates="league")
-    standings = relationship("LeagueStanding", back_populates="league")
+    venue = relationship("VenueProfile", back_populates="power_bank_stations")
+    rentals = relationship("PowerBankRental", back_populates="station")
 
 
-class Team(Base):
-    """Sports team"""
-    __tablename__ = "teams"
+class PowerBankRental(Base):
+    """A user's rental of a power bank from a station."""
+    __tablename__ = "power_bank_rentals"
     
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255), nullable=False)
-    short_name = Column(String(10), nullable=True)
-    logo_url = Column(String(500), nullable=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    station_id = Column(Integer, ForeignKey("power_bank_stations.id"), nullable=False)
+    units_rented = Column(Integer, default=1)
+    status = Column(Enum(PowerBankRentalStatus), default=PowerBankRentalStatus.ACTIVE)
+    start_time = Column(DateTime(timezone=True), default=func.now())
+    end_time = Column(DateTime(timezone=True), nullable=True)
+    expected_return = Column(DateTime(timezone=True), nullable=True)
+    total_cost = Column(Float, default=0.0)
+    payment_status = Column(Enum(PaymentStatus), default=PaymentStatus.PENDING)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     
-    # Location
-    city = Column(String(100), nullable=False)
+    user = relationship("User", back_populates="power_bank_rentals")
+    station = relationship("PowerBankStation", back_populates="rentals")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# RESTAURANT TABLE RESERVATION SYSTEM
+# ═══════════════════════════════════════════════════════════════════════════
+
+class RestaurantReservationStatus(str, enum.Enum):
+    PENDING = "pending"
+    CONFIRMED = "confirmed"
+    SEATED = "seated"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+    NO_SHOW = "no_show"
+
+
+class RestaurantReservation(Base):
+    """A table reservation at a restaurant/food spot."""
+    __tablename__ = "restaurant_reservations"
     
-    # League
-    league_id = Column(Integer, ForeignKey("sports_leagues.id"), nullable=False)
-    
-    # Home venue (if applicable)
-    home_venue_id = Column(Integer, ForeignKey("venues.id"), nullable=True)
-    home_facility_id = Column(Integer, ForeignKey("sports_profiles.id"), nullable=True)
-    
-    # Team info
-    founded_year = Column(Integer, nullable=True)
-    colors = Column(JSON, nullable=True)  # {primary: "#C7F600", secondary: "#000000"}
-    description = Column(Text, nullable=True)
-    social_links = Column(JSON, nullable=True)
-    
-    # Status
-    status = Column(String(20), default="active")
-    
-    # Timestamps
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    food_spot_id = Column(Integer, ForeignKey("food_spots.id"), nullable=False)
+    reservation_date = Column(DateTime(timezone=True), nullable=False)
+    reservation_time = Column(String(5), nullable=False)  # 18:00
+    party_size = Column(Integer, default=2)
+    table_number = Column(String(20), nullable=True)
+    special_requests = Column(Text, nullable=True)
+    status = Column(Enum(RestaurantReservationStatus), default=RestaurantReservationStatus.PENDING)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
-    # Relationships
-    league = relationship("SportsLeague", back_populates="teams")
-    home_venue = relationship("Venue")
-    home_facility = relationship("SportsProfile")
-    home_fixtures = relationship("Fixture", foreign_keys="Fixture.home_team_id", back_populates="home_team")
-    away_fixtures = relationship("Fixture", foreign_keys="Fixture.away_team_id", back_populates="away_team")
-    standings = relationship("LeagueStanding", back_populates="team")
-    followers = relationship("UserFavoriteTeam", back_populates="team")
-
-
-class Fixture(Base):
-    """Sports match/fixture"""
-    __tablename__ = "fixtures"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    
-    # League and teams
-    league_id = Column(Integer, ForeignKey("sports_leagues.id"), nullable=False)
-    home_team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
-    away_team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
-    
-    # Venue
-    venue_id = Column(Integer, ForeignKey("venues.id"), nullable=True)
-    facility_id = Column(Integer, ForeignKey("sports_profiles.id"), nullable=True)
-    
-    # Match details
-    match_date = Column(DateTime(timezone=True), nullable=False)
-    match_type = Column(String(50), default="league")  # league, cup, friendly, playoff
-    matchday = Column(Integer, nullable=True)  # Week/round number
-    
-    # Scores
-    home_score = Column(Integer, nullable=True)
-    away_score = Column(Integer, nullable=True)
-    home_ht_score = Column(Integer, nullable=True)  # Half-time
-    away_ht_score = Column(Integer, nullable=True)
-    
-    # Status
-    status = Column(Enum(FixtureStatus), default=FixtureStatus.SCHEDULED)
-    
-    # Ticketing integration
-    is_ticketed = Column(Boolean, default=False)
-    event_id = Column(Integer, ForeignKey("events.id"), nullable=True)  # Links to events for tickets
-    ticket_sale_starts = Column(DateTime(timezone=True), nullable=True)
-    ticket_sale_ends = Column(DateTime(timezone=True), nullable=True)
-    
-    # Match metadata
-    attendance = Column(Integer, nullable=True)
-    highlights_video_url = Column(String(500), nullable=True)
-    
-    # Audit
-    created_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
-    # Relationships
-    league = relationship("SportsLeague", back_populates="fixtures")
-    home_team = relationship("Team", foreign_keys=[home_team_id], back_populates="home_fixtures")
-    away_team = relationship("Team", foreign_keys=[away_team_id], back_populates="away_fixtures")
-    venue = relationship("Venue")
-    facility = relationship("SportsProfile")
-    event = relationship("Event")
-    created_by = relationship("User")
-    events = relationship("FixtureEvent", back_populates="fixture")
-
-
-class FixtureEvent(Base):
-    """Events during a match (goals, cards, subs)"""
-    __tablename__ = "fixture_events"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    fixture_id = Column(Integer, ForeignKey("fixtures.id"), nullable=False)
-    
-    # Event details
-    event_type = Column(Enum(MatchEventType), nullable=False)
-    minute = Column(Integer, nullable=False)
-    
-    # Team and player
-    team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
-    player_name = Column(String(255), nullable=False)  # Store name since we may not have full player DB yet
-    
-    # Secondary player (assist, substituted player)
-    secondary_player_name = Column(String(255), nullable=True)
-    
-    # Description
-    description = Column(Text, nullable=True)
-    
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    
-    # Relationships
-    fixture = relationship("Fixture", back_populates="events")
-    team = relationship("Team")
-
-
-class LeagueStanding(Base):
-    """League table standings (auto-calculated)"""
-    __tablename__ = "league_standings"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    league_id = Column(Integer, ForeignKey("sports_leagues.id"), nullable=False)
-    team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
-    
-    # Position
-    position = Column(Integer, nullable=False)
-    
-    # Match stats
-    played = Column(Integer, default=0)
-    won = Column(Integer, default=0)
-    drawn = Column(Integer, default=0)
-    lost = Column(Integer, default=0)
-    goals_for = Column(Integer, default=0)
-    goals_against = Column(Integer, default=0)
-    goal_difference = Column(Integer, default=0)
-    points = Column(Integer, default=0)
-    
-    # Form (last 5 results: "WWDLW")
-    form = Column(String(10), nullable=True)
-    
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
-    # Relationships
-    league = relationship("SportsLeague", back_populates="standings")
-    team = relationship("Team", back_populates="standings")
-
-
-class UserFavoriteTeam(Base):
-    """User following a team"""
-    __tablename__ = "user_favorite_teams"
-    __table_args__ = (
-        UniqueConstraint('user_id', 'team_id', name='uq_user_favorite_team'),
-    )
-    
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-    team_id = Column(Integer, ForeignKey("teams.id"), nullable=False, index=True)
-    
-    # Notification preference
-    notify_matches = Column(Boolean, default=True)
-    
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    
-    # Relationships
-    user = relationship("User")
-    team = relationship("Team", back_populates="followers")
+    user = relationship("User", back_populates="restaurant_reservations")
+    food_spot = relationship("FoodSpot", back_populates="reservations")
 
 
 class ContactSubmission(Base):
@@ -1557,7 +1239,7 @@ class MonimePayment(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     monime_payment_id = Column(String(100), unique=True, index=True, nullable=True)
-    payment_type = Column(String(50), default="payout")  # payout | checkout_session | payment_code
+    payment_type = Column(String(50), default="payment")  # payout | checkout_session | payment_code
     status = Column(String(50), default="pending")
     currency = Column(String(10), default="SLE")
     amount_value = Column(Integer, nullable=True)  # minor units

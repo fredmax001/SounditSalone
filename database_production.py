@@ -205,7 +205,7 @@ def init_db():
         User, OTPCode, Event, Club, FoodSpot, Order, OrderItem,
         ArtistProfile, DJMix, OrganizerProfile, BusinessProfile,
         BookingRequest, BookingMessage, ArtistReview, ArtistAvailability, ArtistTrack,
-        PayoutRequest, VerificationRequest, Venue,
+        VerificationRequest, Venue,
         EventArtist, TicketTier, Ticket,
         ArtistFollow, EventFollow, VendorFollow, OrganizerFollow,
         Notification, VendorProfile, Product, EventVendor,
@@ -262,7 +262,7 @@ def get_database_stats(db: Session) -> dict:
     from sqlalchemy import func
     from models import (
         User, Event, Order, Ticket, VenueProfile, 
-        OrganizerProfile, SportsProfile, Booking
+        OrganizerProfile, Booking
     )
     
     return {
@@ -271,8 +271,7 @@ def get_database_stats(db: Session) -> dict:
             "active": db.query(User).filter(User.status == "active").count(),
             "organizers": db.query(OrganizerProfile).count(),
             "venues": db.query(VenueProfile).count(),
-            "sports_facilities": db.query(SportsProfile).count(),
-        },
+                    },
         "events": {
             "total": db.query(Event).count(),
             "upcoming": db.query(Event).filter(Event.start_date > func.now()).count(),

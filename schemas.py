@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import Any, Dict, List, Optional
-from datetime import datetime
+from datetime import datetime, date
 from enum import Enum
 from models import EventStatus, TicketStatus, PaymentStatus, PaymentMethod
 
@@ -130,9 +130,7 @@ class ArtistProfileBase(BaseModel):
     bio: Optional[str] = None
     booking_enabled: bool = False
     spotify_url: Optional[str] = None
-    apple_music_url: Optional[str] = None
     soundcloud_url: Optional[str] = None
-    hearthis_url: Optional[str] = None
     artist_type: Optional[str] = "Artist"  # Artist, DJ, or MC
 
 
@@ -156,23 +154,6 @@ DJProfileBase = ArtistProfileBase
 DJProfileCreate = ArtistProfileCreate
 DJProfileResponse = ArtistProfileResponse
 
-
-class DJMixBase(BaseModel):
-    title: str
-    description: Optional[str] = None
-    duration: Optional[str] = None
-    hearthis_id: Optional[str] = None
-    soundcloud_url: Optional[str] = None
-
-
-class DJMixResponse(DJMixBase):
-    id: int
-    dj_id: int
-    plays_count: int
-    created_at: datetime
-    
-    class Config:
-        from_attributes = True
 
 
 # ==================== BUSINESS PROFILE SCHEMAS ====================
@@ -240,7 +221,6 @@ class ClubBase(BaseModel):
     city: City
     address: str
     description: Optional[str] = None
-    music_genres: List[str] = []
     is_afrobeat_friendly: bool = False
 
 
@@ -615,26 +595,6 @@ class CashConfirm(BaseModel):
     notes: Optional[str] = None
 
 
-# ==================== PAYOUT SCHEMAS ====================
-
-class PayoutRequestCreate(BaseModel):
-    amount: float = Field(..., gt=0)
-    payment_method: PaymentMethod
-    payment_details: dict  # Bank account, Mobile Money number, etc.
-
-
-class PayoutRequestResponse(BaseModel):
-    id: int
-    user_id: int
-    amount: float
-    status: RequestStatus
-    payment_method: PaymentMethod
-    requested_at: datetime
-    processed_at: Optional[datetime] = None
-    
-    class Config:
-        from_attributes = True
-
 
 # ==================== VERIFICATION SCHEMAS ====================
 
@@ -690,7 +650,6 @@ class AdminDashboardStats(BaseModel):
     total_events: int
     total_tickets_sold: int
     total_revenue: float
-    pending_payouts: int
     pending_verifications: int
 
 
@@ -813,31 +772,6 @@ class BookingStatus(str, Enum):
     REJECTED = "rejected"
     CANCELLED = "cancelled"
 
-
-# ----- Artist Track Schemas -----
-
-class ArtistTrackBase(BaseModel):
-    title: str
-    genre: Optional[str] = None
-    duration: Optional[str] = None
-    audio_url: Optional[str] = None
-    hearthis_id: Optional[str] = None
-    soundcloud_url: Optional[str] = None
-    cover_image: Optional[str] = None
-
-
-class ArtistTrackCreate(ArtistTrackBase):
-    pass
-
-
-class ArtistTrackResponse(ArtistTrackBase):
-    id: int
-    artist_id: int
-    plays_count: int
-    created_at: datetime
-    
-    class Config:
-        from_attributes = True
 
 
 # ----- Artist Availability Schemas -----
@@ -1025,11 +959,8 @@ class ArtistProfileDetailed(BaseModel):
     languages: Optional[List[str]] = None
     city: Optional[str] = None
     
-    # Music links
     spotify_url: Optional[str] = None
-    apple_music_url: Optional[str] = None
     soundcloud_url: Optional[str] = None
-    hearthis_url: Optional[str] = None
     
     # Booking settings
     starting_price: Optional[float] = None
@@ -1047,7 +978,6 @@ class ArtistProfileDetailed(BaseModel):
     is_verified: bool = False
     
     # Related data
-    tracks: Optional[List[ArtistTrackResponse]] = []
     reviews: Optional[List[ArtistReviewResponse]] = []
     
     class Config:
@@ -1149,207 +1079,6 @@ class DealResponse(DealBase):
 
 
 # ==================== SPORTS SCHEMAS ====================
-
-class LeagueStatus(str, Enum):
-    ACTIVE = "active"
-    INACTIVE = "inactive"
-    COMPLETED = "completed"
-    CANCELLED = "cancelled"
-
-
-class FixtureStatus(str, Enum):
-    SCHEDULED = "scheduled"
-    LIVE = "live"
-    HALFTIME = "halftime"
-    COMPLETED = "completed"
-    POSTPONED = "postponed"
-    CANCELLED = "cancelled"
-
-
-class MatchEventType(str, Enum):
-    GOAL = "goal"
-    PENALTY = "penalty"
-    OWN_GOAL = "own_goal"
-    YELLOW_CARD = "yellow_card"
-    RED_CARD = "red_card"
-    SUBSTITUTION = "substitution"
-    CORNER = "corner"
-    FREE_KICK = "free_kick"
-    OFFSIDE = "offside"
-
-
-class FixtureEventResponse(BaseModel):
-    id: int
-    fixture_id: int
-    event_type: MatchEventType
-    minute: int
-    team_id: int
-    team_name: str
-    player_name: str
-    secondary_player_name: Optional[str] = None
-    description: Optional[str] = None
-    created_at: datetime
-    
-    class Config:
-        from_attributes = True
-
-
-class FixtureEventCreate(BaseModel):
-    fixture_id: int
-    event_type: MatchEventType
-    minute: int
-    team_id: int
-    player_name: str
-    secondary_player_name: Optional[str] = None
-    description: Optional[str] = None
-
-
-class MatchTicketTierCreate(BaseModel):
-    name: str  # e.g., "General Admission", "VIP", "Premium Seats"
-    description: Optional[str] = None
-    price: float
-    quantity: int
-    max_per_order: int = 10
-
-
-class FixtureTicketInfoResponse(BaseModel):
-    fixture_id: int
-    is_ticketed: bool
-    event_id: Optional[int] = None
-    ticket_sale_starts: Optional[datetime] = None
-    ticket_sale_ends: Optional[datetime] = None
-    ticket_tiers: Optional[List[dict]] = None
-    tickets_sold: int = 0
-    total_capacity: int = 0
-    
-    class Config:
-        from_attributes = True
-
-
-class SportsLeagueBase(BaseModel):
-    name: str
-    short_name: str
-    sport_type: str
-    season: str
-    logo_url: Optional[str] = None
-    description: Optional[str] = None
-    status: LeagueStatus = LeagueStatus.ACTIVE
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
-    featured: bool = False
-
-
-class SportsLeagueCreate(SportsLeagueBase):
-    pass
-
-
-class SportsLeagueResponse(SportsLeagueBase):
-    id: int
-    teams_count: int
-    fixtures_count: int
-
-    class Config:
-        from_attributes = True
-
-
-class TeamBase(BaseModel):
-    name: str
-    short_name: str
-    logo_url: Optional[str] = None
-    city: str
-    league_id: int
-    home_venue_id: Optional[int] = None
-    home_facility_id: Optional[int] = None
-    founded_year: Optional[int] = None
-    colors: Optional[dict] = None
-    description: Optional[str] = None
-    social_links: Optional[dict] = None
-
-
-class TeamCreate(TeamBase):
-    pass
-
-
-class TeamResponse(TeamBase):
-    id: int
-    league_name: str
-    status: str
-
-    class Config:
-        from_attributes = True
-
-
-class FixtureBase(BaseModel):
-    home_team_id: int
-    away_team_id: int
-    venue_id: Optional[int] = None
-    facility_id: Optional[int] = None
-    match_date: datetime
-    match_type: str = "league"
-    matchday: Optional[int] = None
-    is_ticketed: bool = False
-    ticket_sale_starts: Optional[datetime] = None
-    ticket_sale_ends: Optional[datetime] = None
-
-
-class FixtureCreate(FixtureBase):
-    pass
-
-
-class FixtureResponse(FixtureBase):
-    id: int
-    league_id: int
-    status: str
-
-    class Config:
-        from_attributes = True
-
-
-class FixtureEventBase(BaseModel):
-    fixture_id: int
-    event_type: MatchEventType
-    minute: int
-    team_id: int
-    player_name: Optional[str] = None
-    secondary_player_name: Optional[str] = None
-    description: Optional[str] = None
-
-
-class FixtureEventCreate(FixtureEventBase):
-    pass
-
-
-class LeagueStandingResponse(BaseModel):
-    id: int
-    league_id: int
-    team_id: int
-    team_name: str
-    team_logo: Optional[str] = None
-    position: int
-    played: int
-    won: int
-    drawn: int
-    lost: int
-    goals_for: int
-    goals_against: int
-    goal_difference: int
-    points: int
-    form: Optional[str] = None
-
-    class Config:
-        from_attributes = True
-
-
-class UserFavoriteTeamBase(BaseModel):
-    user_id: int
-    team_id: int
-
-
-class UserFavoriteTeamCreate(UserFavoriteTeamBase):
-    pass
-
-
-
 
 # ==================== MONIME SCHEMAS ====================
 
@@ -1590,3 +1319,90 @@ class MonimeWebhookLogListResponse(BaseModel):
     success: bool
     logs: List[MonimeWebhookLog]
     total: int
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# POWER BANK SCHEMAS
+# ═══════════════════════════════════════════════════════════════════════════
+
+class PowerBankStationBase(BaseModel):
+    name: str
+    location_description: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    total_units: int = 10
+    available_units: int = 10
+    price_per_hour: float = 5.0
+    max_rental_hours: int = 24
+
+
+class PowerBankStationCreate(PowerBankStationBase):
+    venue_id: Optional[int] = None
+
+
+class PowerBankStationResponse(PowerBankStationBase):
+    id: int
+    venue_id: Optional[int] = None
+    status: str
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class PowerBankRentalBase(BaseModel):
+    station_id: int
+    units_rented: int = 1
+
+
+class PowerBankRentalCreate(PowerBankRentalBase):
+    pass
+
+
+class PowerBankRentalResponse(BaseModel):
+    id: int
+    user_id: int
+    station_id: int
+    units_rented: int
+    status: str
+    start_time: datetime
+    end_time: Optional[datetime] = None
+    expected_return: Optional[datetime] = None
+    total_cost: float
+    payment_status: str
+    created_at: datetime
+    station: Optional[PowerBankStationResponse] = None
+
+    class Config:
+        from_attributes = True
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# RESTAURANT RESERVATION SCHEMAS
+# ═══════════════════════════════════════════════════════════════════════════
+
+class RestaurantReservationBase(BaseModel):
+    food_spot_id: int
+    reservation_date: date
+    reservation_time: str
+    party_size: int = 2
+    table_number: Optional[str] = None
+    special_requests: Optional[str] = None
+
+
+class RestaurantReservationCreate(RestaurantReservationBase):
+    pass
+
+
+class RestaurantReservationResponse(RestaurantReservationBase):
+    id: int
+    user_id: int
+    status: str
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    food_spot_name: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+

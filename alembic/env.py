@@ -13,13 +13,13 @@ from database import Base
 from models import (
     User, OTPCode, Event, Club, FoodSpot, Order, 
     OrganizerProfile, BusinessProfile,
-    PayoutRequest, VerificationRequest, Venue,
+    VerificationRequest, Venue,
     TicketTier, Ticket, OrderItem,
     ArtistFollow, EventFollow, Notification,
     PaymentVerification, VendorProfile,
     VendorFollow, OrganizerFollow, SearchLog, FeaturedItem,
     Recap, RecapLike, Sport, Deal, Crew,
-    SportsLeague, Team, Fixture, FixtureEvent, LeagueStanding, UserFavoriteTeam
+    
 )
 
 # this is the Alembic Config object
