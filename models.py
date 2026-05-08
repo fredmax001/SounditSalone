@@ -1053,26 +1053,8 @@ class RecapLike(Base):
     recap = relationship("Recap", back_populates="likes")
     
 # ═══════════════════════════════════════════════════════════════════════════
-# SIERRA LEONE FEATURES - Sports, Deals, Crews
+# SIERRA LEONE FEATURES - Deals, Crews
 # ═══════════════════════════════════════════════════════════════════════════
-
-class Sport(Base):
-    """Matches, viewing centers, and community sports events"""
-    __tablename__ = "sports"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(200), nullable=False)
-    description = Column(Text, nullable=True)
-    image_url = Column(String(500), nullable=True)
-    category = Column(String(50), nullable=False) # Match, Viewing Center, Community Event
-    
-    city = Column(Enum(City), nullable=False)
-    location = Column(String(500), nullable=True)
-    date = Column(DateTime(timezone=True), nullable=True)
-    
-    status = Column(String(20), default="active")
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-
 
 class Deal(Base):
     """Discounts, offers, and promotions from vendors/venues"""

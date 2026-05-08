@@ -1,0 +1,236 @@
+- generic [ref=e26]:
+  - region "Notifications alt+T"
+  - generic [ref=e27]:
+    - navigation [ref=e28]:
+      - generic [ref=e30]:
+        - link "Sound It" [ref=e31] [cursor=pointer]:
+          - /url: /
+          - img "Sound It" [ref=e32]
+        - generic [ref=e33]:
+          - link "Events" [ref=e34] [cursor=pointer]:
+            - /url: /events
+          - link "Venues" [ref=e35] [cursor=pointer]:
+            - /url: /venues
+          - link "Deals" [ref=e36] [cursor=pointer]:
+            - /url: /deals
+          - link "Power Banks" [ref=e37] [cursor=pointer]:
+            - /url: /power-banks
+          - link "Recaps" [ref=e38] [cursor=pointer]:
+            - /url: /recaps
+          - link "Contact" [ref=e39] [cursor=pointer]:
+            - /url: /contact
+        - generic [ref=e40]:
+          - button "Freetown" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - generic [ref=e46]: Freetown
+            - img [ref=e47]
+          - button "Toggle theme" [ref=e49] [cursor=pointer]:
+            - img [ref=e50]
+          - button "EN" [ref=e57] [cursor=pointer]:
+            - img [ref=e58]
+            - generic [ref=e61]: EN
+            - img [ref=e62]
+          - link "Get Started" [ref=e65] [cursor=pointer]:
+            - /url: /register
+    - main [ref=e66]:
+      - generic [ref=e67]:
+        - generic [ref=e75]:
+          - generic [ref=e76]:
+            - img [ref=e77]
+            - generic [ref=e79]: Sierra Leone's Premier Event Platform
+          - heading "FEEL THE CULTURE OF SALONE" [level=1] [ref=e80]
+          - paragraph [ref=e81]: Discover the hottest events, venues, and deals across Freetown, Bo, Kenema & more. Your guide to Sierra Leonean entertainment.
+          - generic [ref=e82]:
+            - link "Explore Events" [ref=e83] [cursor=pointer]:
+              - /url: /events
+              - text: Explore Events
+              - img [ref=e84]
+            - link "Explore Venues" [ref=e86] [cursor=pointer]:
+              - /url: /venues
+        - generic [ref=e93]:
+          - button "Afrobeats" [ref=e94] [cursor=pointer]
+          - button "Amapiano" [ref=e95] [cursor=pointer]
+          - button "Live Band" [ref=e96] [cursor=pointer]
+          - button "Beach Party" [ref=e97] [cursor=pointer]
+          - button "Club Night" [ref=e98] [cursor=pointer]
+          - button "Festival" [ref=e99] [cursor=pointer]
+        - generic [ref=e101]:
+          - generic [ref=e102]:
+            - generic [ref=e103]:
+              - generic [ref=e104]: Weekly Highlights
+              - heading "HOTTEST EVENTS" [level=2] [ref=e105]
+            - link "Find your vibe →" [ref=e107] [cursor=pointer]:
+              - /url: /events
+          - generic [ref=e109]: No featured events found.
+        - generic [ref=e112]:
+          - generic [ref=e113]:
+            - generic [ref=e114]:
+              - generic [ref=e115]: Local Hotspots
+              - heading "POPULAR VENUES" [level=2] [ref=e116]
+            - link "Explore All Venues" [ref=e117] [cursor=pointer]:
+              - /url: /venues
+              - text: Explore All Venues
+              - img [ref=e118]
+          - generic [ref=e121]:
+            - generic [ref=e122]:
+              - img "Vibe Club Freetown" [ref=e123]
+              - generic [ref=e125]:
+                - generic [ref=e127]: club
+                - heading "Vibe Club Freetown" [level=3] [ref=e128]
+                - generic [ref=e129]: Aberdeen
+              - link [ref=e132] [cursor=pointer]:
+                - /url: /venues
+            - generic [ref=e133]:
+              - img "The Warehouse" [ref=e134]
+              - generic [ref=e136]:
+                - generic [ref=e138]: club
+                - heading "The Warehouse" [level=3] [ref=e139]
+                - generic [ref=e140]: Aberdeen
+              - link [ref=e143] [cursor=pointer]:
+                - /url: /venues
+            - generic [ref=e144]:
+              - img "Lagoonda Complex" [ref=e145]
+              - generic [ref=e147]:
+                - generic [ref=e149]: club
+                - heading "Lagoonda Complex" [level=3] [ref=e150]
+                - generic [ref=e151]: Aberdeen
+              - link [ref=e154] [cursor=pointer]:
+                - /url: /venues
+        - generic [ref=e157]:
+          - generic [ref=e158]:
+            - generic [ref=e159]:
+              - generic [ref=e160]:
+                - img [ref=e161]
+                - generic [ref=e164]: Hot Deals
+              - heading "SAVE BIG." [level=2] [ref=e165]
+            - link "See All Deals" [ref=e166] [cursor=pointer]:
+              - /url: /deals
+              - generic [ref=e167]: See All Deals
+          - generic [ref=e170]:
+            - img [ref=e171]
+            - paragraph [ref=e174]: No deals found.
+        - generic [ref=e176]:
+          - generic [ref=e177]:
+            - generic [ref=e178]:
+              - generic [ref=e179]: Visual Feed
+              - heading "THE RECAPS" [level=2] [ref=e180]
+              - paragraph [ref=e181]: Missing the vibe? Relive the best moments through our community-driven media feed. From 4K event videos to candid party snaps.
+            - link "Watch All" [ref=e182] [cursor=pointer]:
+              - /url: /recaps
+              - text: Watch All
+              - img [ref=e183]
+          - generic [ref=e187] [cursor=pointer]:
+            - img [ref=e191]
+            - generic [ref=e193]:
+              - heading "Warehouse Launch Party" [level=3] [ref=e194]
+              - generic [ref=e195]:
+                - generic [ref=e196]:
+                  - img [ref=e197]
+                  - text: 1,500 Views
+                - generic [ref=e199]:
+                  - img [ref=e200]
+                  - text: 342 Likes
+        - generic [ref=e203]:
+          - generic [ref=e204]:
+            - generic [ref=e205]: Why Choose Us
+            - heading "EXPERIENCE THE DIFFERENCE" [level=2] [ref=e206]
+          - generic [ref=e207]:
+            - generic [ref=e208]:
+              - img [ref=e210]
+              - heading "Curated Events" [level=3] [ref=e212]
+              - paragraph [ref=e213]: Hand-picked Afrobeats and Amapiano events across Sierra Leone.
+            - generic [ref=e214]:
+              - img [ref=e216]
+              - heading "Community Vibes" [level=3] [ref=e221]
+              - paragraph [ref=e222]: The pulse of the city. Connect with organizers and fellow event-goers.
+            - generic [ref=e223]:
+              - img [ref=e225]
+              - heading "Instant Tickets" [level=3] [ref=e227]
+              - paragraph [ref=e228]: Skip the line with digital tickets and Mobile Money check-ins.
+            - generic [ref=e229]:
+              - img [ref=e231]
+              - heading "Exclusive Deals" [level=3] [ref=e233]
+              - paragraph [ref=e234]: Unlock special discounts from the best local brands and venues.
+    - contentinfo [ref=e235]:
+      - generic [ref=e236]:
+        - generic [ref=e237]:
+          - generic [ref=e238]:
+            - link "Sound It" [ref=e239] [cursor=pointer]:
+              - /url: /
+              - img "Sound It" [ref=e240]
+            - paragraph [ref=e241]: The ultimate platform for locals and foreigners to discover events, venues, and culture in Salone.
+            - generic [ref=e242]:
+              - link "Instagram" [ref=e243] [cursor=pointer]:
+                - /url: https://instagram.com/soundit_events
+                - img [ref=e244]
+              - link "Twitter" [ref=e247] [cursor=pointer]:
+                - /url: https://twitter.com/soundit_events
+                - img [ref=e248]
+              - link "TikTok" [ref=e250] [cursor=pointer]:
+                - /url: https://www.tiktok.com/@soundit_events
+                - img [ref=e251]
+              - link "YouTube" [ref=e253] [cursor=pointer]:
+                - /url: https://www.youtube.com/@soundit_events
+                - img [ref=e254]
+          - generic [ref=e257]:
+            - generic [ref=e258]:
+              - heading "Discover" [level=3] [ref=e259]
+              - list [ref=e260]:
+                - listitem [ref=e261]:
+                  - link "Events" [ref=e262] [cursor=pointer]:
+                    - /url: /events
+                - listitem [ref=e263]:
+                  - link "Venues" [ref=e264] [cursor=pointer]:
+                    - /url: /venues
+                - listitem [ref=e265]:
+                  - link "Deals" [ref=e266] [cursor=pointer]:
+                    - /url: /deals
+                - listitem [ref=e267]:
+                  - link "Recaps" [ref=e268] [cursor=pointer]:
+                    - /url: /recaps
+                - listitem [ref=e269]:
+                  - link "Contact" [ref=e270] [cursor=pointer]:
+                    - /url: /contact
+            - generic [ref=e271]:
+              - heading "Company" [level=3] [ref=e272]
+              - list [ref=e273]:
+                - listitem [ref=e274]:
+                  - link "About Us" [ref=e275] [cursor=pointer]:
+                    - /url: /about
+                - listitem [ref=e276]:
+                  - button "Careers" [ref=e277] [cursor=pointer]
+                - listitem [ref=e278]:
+                  - button "Press" [ref=e279] [cursor=pointer]
+                - listitem [ref=e280]:
+                  - link "Contact" [ref=e281] [cursor=pointer]:
+                    - /url: /contact
+            - generic [ref=e282]:
+              - heading "Support" [level=3] [ref=e283]
+              - list [ref=e284]:
+                - listitem [ref=e285]:
+                  - link "Help Center" [ref=e286] [cursor=pointer]:
+                    - /url: /help
+                - listitem [ref=e287]:
+                  - link "Terms of Service" [ref=e288] [cursor=pointer]:
+                    - /url: /terms
+                - listitem [ref=e289]:
+                  - link "Privacy Policy" [ref=e290] [cursor=pointer]:
+                    - /url: /privacy
+                - listitem [ref=e291]:
+                  - link "Refund Policy" [ref=e292] [cursor=pointer]:
+                    - /url: /refund-policy
+        - generic [ref=e293]:
+          - generic [ref=e294]:
+            - img [ref=e295]
+            - link "support@sounditentsl.com" [ref=e298] [cursor=pointer]:
+              - /url: mailto:support@sounditentsl.com
+          - generic [ref=e299]:
+            - img [ref=e300]
+            - link "+232 79 123 456" [ref=e302] [cursor=pointer]:
+              - /url: tel:+23279123456
+          - generic [ref=e303]:
+            - img [ref=e304]
+            - generic [ref=e307]: Freetown, Sierra Leone
+        - generic [ref=e308]:
+          - paragraph [ref=e309]: © 2026 Sound It Salone. Made for Sierra Leone.
+          - paragraph [ref=e310]: "@sounditent_sl"
