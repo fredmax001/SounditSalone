@@ -9,6 +9,7 @@ class UserRole(str, enum.Enum):
     USER = "user"
     ORGANIZER = "organizer"
     VENUE = "venue"
+    SPORT = "sport"
     ADMIN = "admin"
     SUPER_ADMIN = "super_admin"
 
@@ -239,6 +240,10 @@ class VenueProfile(Base):
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Dynamic Dashboard Configurations
+    menu_items = Column(JSON, nullable=True, default=list)
+    table_configs = Column(JSON, nullable=True, default=list)
     
     # Relationships
     user = relationship("User", back_populates="venue_profile")
@@ -1073,6 +1078,10 @@ class Deal(Base):
     status = Column(String(20), default="active")
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    vendor = relationship("VendorProfile")
+    venue = relationship("Venue")
 
 
 class Crew(Base):

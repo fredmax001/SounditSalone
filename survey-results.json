@@ -3,27 +3,27 @@
     "module": "Auth",
     "feature": "Roles",
     "test_case": "Get available roles",
-    "status": "FAIL",
-    "notes": "Empty roles list",
+    "status": "PASS",
+    "notes": "Found 3 roles",
     "priority": "Critical",
-    "response_time_ms": 7.01,
+    "response_time_ms": 10.94,
     "endpoint": "/auth/roles",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:33.506537"
+    "timestamp": "2026-06-03T07:23:18.097366"
   },
   {
     "module": "Auth",
     "feature": "Register",
     "test_case": "Register with valid data",
     "status": "PASS",
-    "notes": "User ID: 22",
+    "notes": "User ID: 43",
     "priority": "Critical",
-    "response_time_ms": 1949.77,
+    "response_time_ms": 2083.29,
     "endpoint": "/auth/register",
     "method": "POST",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:35.456449"
+    "timestamp": "2026-06-03T07:23:20.180885"
   },
   {
     "module": "Auth",
@@ -32,11 +32,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Critical",
-    "response_time_ms": 4.78,
+    "response_time_ms": 8.08,
     "endpoint": "/auth/register",
     "method": "POST",
     "status_code": 409,
-    "timestamp": "2026-04-26T15:45:35.461252"
+    "timestamp": "2026-06-03T07:23:20.189010"
   },
   {
     "module": "Auth",
@@ -45,11 +45,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Critical",
-    "response_time_ms": 238.86,
+    "response_time_ms": 333.23,
     "endpoint": "/auth/login",
     "method": "POST",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:35.700130"
+    "timestamp": "2026-06-03T07:23:20.522309"
   },
   {
     "module": "Auth",
@@ -58,11 +58,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Critical",
-    "response_time_ms": 230.08,
+    "response_time_ms": 318.72,
     "endpoint": "/auth/login",
     "method": "POST",
     "status_code": 401,
-    "timestamp": "2026-04-26T15:45:35.930263"
+    "timestamp": "2026-06-03T07:23:20.841079"
   },
   {
     "module": "Auth",
@@ -71,24 +71,24 @@
     "status": "PASS",
     "notes": "",
     "priority": "Critical",
-    "response_time_ms": 4.15,
+    "response_time_ms": 5.58,
     "endpoint": "/auth/me",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:35.934422"
+    "timestamp": "2026-06-03T07:23:20.846766"
   },
   {
     "module": "Auth",
     "feature": "Token",
     "test_case": "Refresh access token",
-    "status": "FAIL",
-    "notes": "Status 401",
+    "status": "PASS",
+    "notes": "",
     "priority": "Critical",
-    "response_time_ms": 2.07,
+    "response_time_ms": 4.99,
     "endpoint": "/auth/refresh",
     "method": "POST",
-    "status_code": 401,
-    "timestamp": "2026-04-26T15:45:35.936501"
+    "status_code": 200,
+    "timestamp": "2026-06-03T07:23:20.851770"
   },
   {
     "module": "Auth",
@@ -97,11 +97,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "High",
-    "response_time_ms": 1485.0,
+    "response_time_ms": 1552.33,
     "endpoint": "/auth/password-reset-request",
     "method": "POST",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:37.421529"
+    "timestamp": "2026-06-03T07:23:22.404119"
   },
   {
     "module": "Auth",
@@ -110,11 +110,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "High",
-    "response_time_ms": 476.16,
+    "response_time_ms": 632.84,
     "endpoint": "/auth/change-password",
     "method": "POST",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:37.897713"
+    "timestamp": "2026-06-03T07:23:23.036997"
   },
   {
     "module": "Auth",
@@ -123,11 +123,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Medium",
-    "response_time_ms": 2.24,
+    "response_time_ms": 2.7,
     "endpoint": "/auth/google/config",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:38.357703"
+    "timestamp": "2026-06-03T07:23:23.674925"
   },
   {
     "module": "Platform",
@@ -136,11 +136,11 @@
     "status": "WARNING",
     "notes": "Status 404",
     "priority": "Medium",
-    "response_time_ms": 2.38,
+    "response_time_ms": 3.07,
     "endpoint": "/stats",
     "method": "GET",
     "status_code": 404,
-    "timestamp": "2026-04-26T15:45:38.360101"
+    "timestamp": "2026-06-03T07:23:23.678034"
   },
   {
     "module": "Platform",
@@ -149,63 +149,63 @@
     "status": "PASS",
     "notes": "Found 0 events",
     "priority": "Critical",
-    "response_time_ms": 2.78,
+    "response_time_ms": 7.03,
     "endpoint": "/events",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:38.362892"
+    "timestamp": "2026-06-03T07:23:23.685122"
   },
   {
     "module": "Platform",
     "feature": "Venues",
     "test_case": "List venues/clubs",
     "status": "PASS",
-    "notes": "Found 0 venues",
+    "notes": "Found 4 venues",
     "priority": "Critical",
-    "response_time_ms": 2.98,
+    "response_time_ms": 6.04,
     "endpoint": "/clubs",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:38.365887"
+    "timestamp": "2026-06-03T07:23:23.691239"
   },
   {
     "module": "Platform",
     "feature": "Sports",
     "test_case": "List leagues",
-    "status": "PASS",
-    "notes": "Found 0 leagues",
+    "status": "FAIL",
+    "notes": "Status 404",
     "priority": "Medium",
-    "response_time_ms": 3.53,
+    "response_time_ms": 5.19,
     "endpoint": "/sports/leagues",
     "method": "GET",
-    "status_code": 200,
-    "timestamp": "2026-04-26T15:45:38.369462"
+    "status_code": 404,
+    "timestamp": "2026-06-03T07:23:23.696454"
   },
   {
     "module": "Platform",
     "feature": "Sports",
     "test_case": "List fixtures",
-    "status": "PASS",
-    "notes": "",
+    "status": "FAIL",
+    "notes": "Status 404",
     "priority": "Medium",
-    "response_time_ms": 3.19,
+    "response_time_ms": 6.01,
     "endpoint": "/sports/fixtures",
     "method": "GET",
-    "status_code": 200,
-    "timestamp": "2026-04-26T15:45:38.372659"
+    "status_code": 404,
+    "timestamp": "2026-06-03T07:23:23.702567"
   },
   {
     "module": "Platform",
     "feature": "Music",
     "test_case": "List mixes",
-    "status": "PASS",
-    "notes": "",
+    "status": "FAIL",
+    "notes": "Status 404",
     "priority": "Low",
-    "response_time_ms": 2.01,
+    "response_time_ms": 5.22,
     "endpoint": "/music/mixes",
     "method": "GET",
-    "status_code": 200,
-    "timestamp": "2026-04-26T15:45:38.374676"
+    "status_code": 404,
+    "timestamp": "2026-06-03T07:23:23.707809"
   },
   {
     "module": "Platform",
@@ -214,11 +214,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Low",
-    "response_time_ms": 2.51,
+    "response_time_ms": 7.5,
     "endpoint": "/recaps",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:38.377189"
+    "timestamp": "2026-06-03T07:23:23.715322"
   },
   {
     "module": "Platform",
@@ -227,11 +227,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Medium",
-    "response_time_ms": 1.63,
+    "response_time_ms": 3.3,
     "endpoint": "/contact/categories",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:38.378822"
+    "timestamp": "2026-06-03T07:23:23.718644"
   },
   {
     "module": "Platform",
@@ -240,11 +240,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Medium",
-    "response_time_ms": 4.53,
+    "response_time_ms": 7.73,
     "endpoint": "/contact",
     "method": "POST",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:38.383384"
+    "timestamp": "2026-06-03T07:23:23.726394"
   },
   {
     "module": "User",
@@ -253,11 +253,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Critical",
-    "response_time_ms": 7.23,
+    "response_time_ms": 9.25,
     "endpoint": "/tickets/user",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:38.390619"
+    "timestamp": "2026-06-03T07:23:23.735664"
   },
   {
     "module": "User",
@@ -266,11 +266,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Critical",
-    "response_time_ms": 6.39,
+    "response_time_ms": 7.82,
     "endpoint": "/orders/user",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:38.397020"
+    "timestamp": "2026-06-03T07:23:23.743498"
   },
   {
     "module": "User",
@@ -279,11 +279,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "High",
-    "response_time_ms": 3.15,
+    "response_time_ms": 6.78,
     "endpoint": "/events/me",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:38.400175"
+    "timestamp": "2026-06-03T07:23:23.750345"
   },
   {
     "module": "User",
@@ -292,11 +292,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Medium",
-    "response_time_ms": 5.01,
+    "response_time_ms": 6.54,
     "endpoint": "/notifications",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:38.405189"
+    "timestamp": "2026-06-03T07:23:23.756906"
   },
   {
     "module": "User",
@@ -305,11 +305,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Medium",
-    "response_time_ms": 5.3,
+    "response_time_ms": 7.3,
     "endpoint": "/notifications/count",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:38.410528"
+    "timestamp": "2026-06-03T07:23:23.764228"
   },
   {
     "module": "User",
@@ -318,11 +318,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Medium",
-    "response_time_ms": 3.37,
+    "response_time_ms": 7.16,
     "endpoint": "/users/me/settings",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:38.413908"
+    "timestamp": "2026-06-03T07:23:23.771456"
   },
   {
     "module": "User",
@@ -331,11 +331,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Medium",
-    "response_time_ms": 3.54,
+    "response_time_ms": 6.57,
     "endpoint": "/users/me/settings",
     "method": "PATCH",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:38.417458"
+    "timestamp": "2026-06-03T07:23:23.778042"
   },
   {
     "module": "User",
@@ -344,11 +344,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Low",
-    "response_time_ms": 3.32,
+    "response_time_ms": 6.51,
     "endpoint": "/favorites/events",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:38.420789"
+    "timestamp": "2026-06-03T07:23:23.784572"
   },
   {
     "module": "User",
@@ -357,24 +357,154 @@
     "status": "PASS",
     "notes": "",
     "priority": "Medium",
-    "response_time_ms": 2.92,
+    "response_time_ms": 6.12,
     "endpoint": "/cart/sync",
     "method": "POST",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:38.423714"
+    "timestamp": "2026-06-03T07:23:23.790716"
   },
   {
     "module": "Admin",
     "feature": "Auth",
     "test_case": "Admin login",
-    "status": "FAIL",
-    "notes": "Status 401: {\"detail\":\"Invalid credentials\"}",
+    "status": "PASS",
+    "notes": "",
     "priority": "Critical",
-    "response_time_ms": 3.69,
+    "response_time_ms": 365.78,
     "endpoint": "/admin/auth/login",
     "method": "POST",
-    "status_code": 401,
-    "timestamp": "2026-04-26T15:45:38.427415"
+    "status_code": 200,
+    "timestamp": "2026-06-03T07:23:24.156548"
+  },
+  {
+    "module": "Admin",
+    "feature": "Dashboard",
+    "test_case": "Super admin dashboard",
+    "status": "PASS",
+    "notes": "",
+    "priority": "Critical",
+    "response_time_ms": 13.89,
+    "endpoint": "/admin/super/dashboard",
+    "method": "GET",
+    "status_code": 200,
+    "timestamp": "2026-06-03T07:23:24.170515"
+  },
+  {
+    "module": "Admin",
+    "feature": "Users",
+    "test_case": "List all users",
+    "status": "PASS",
+    "notes": "Found 0 users",
+    "priority": "Critical",
+    "response_time_ms": 7.75,
+    "endpoint": "/admin/users",
+    "method": "GET",
+    "status_code": 200,
+    "timestamp": "2026-06-03T07:23:24.178318"
+  },
+  {
+    "module": "Admin",
+    "feature": "Finance",
+    "test_case": "List transactions",
+    "status": "PASS",
+    "notes": "",
+    "priority": "Critical",
+    "response_time_ms": 6.49,
+    "endpoint": "/admin/finance/transactions",
+    "method": "GET",
+    "status_code": 200,
+    "timestamp": "2026-06-03T07:23:24.184831"
+  },
+  {
+    "module": "Admin",
+    "feature": "Finance",
+    "test_case": "List payouts",
+    "status": "PASS",
+    "notes": "",
+    "priority": "Critical",
+    "response_time_ms": 6.26,
+    "endpoint": "/admin/finance/payouts",
+    "method": "GET",
+    "status_code": 200,
+    "timestamp": "2026-06-03T07:23:24.191115"
+  },
+  {
+    "module": "Admin",
+    "feature": "Config",
+    "test_case": "Get system config",
+    "status": "PASS",
+    "notes": "",
+    "priority": "High",
+    "response_time_ms": 6.71,
+    "endpoint": "/admin/config",
+    "method": "GET",
+    "status_code": 200,
+    "timestamp": "2026-06-03T07:23:24.197842"
+  },
+  {
+    "module": "Admin",
+    "feature": "Verifications",
+    "test_case": "List verification requests",
+    "status": "PASS",
+    "notes": "",
+    "priority": "High",
+    "response_time_ms": 7.98,
+    "endpoint": "/admin/verifications",
+    "method": "GET",
+    "status_code": 200,
+    "timestamp": "2026-06-03T07:23:24.205969"
+  },
+  {
+    "module": "Admin",
+    "feature": "Audit",
+    "test_case": "Get activity logs",
+    "status": "PASS",
+    "notes": "",
+    "priority": "Medium",
+    "response_time_ms": 5.98,
+    "endpoint": "/admin/activity-logs",
+    "method": "GET",
+    "status_code": 200,
+    "timestamp": "2026-06-03T07:23:24.211969"
+  },
+  {
+    "module": "Admin",
+    "feature": "Finance",
+    "test_case": "Get commission rates",
+    "status": "PASS",
+    "notes": "",
+    "priority": "High",
+    "response_time_ms": 6.51,
+    "endpoint": "/admin/commission-rates",
+    "method": "GET",
+    "status_code": 200,
+    "timestamp": "2026-06-03T07:23:24.218504"
+  },
+  {
+    "module": "Admin",
+    "feature": "Config",
+    "test_case": "Get system flags",
+    "status": "PASS",
+    "notes": "",
+    "priority": "Medium",
+    "response_time_ms": 6.19,
+    "endpoint": "/admin/system-flags",
+    "method": "GET",
+    "status_code": 200,
+    "timestamp": "2026-06-03T07:23:24.224724"
+  },
+  {
+    "module": "Admin",
+    "feature": "Auth",
+    "test_case": "Admin logout",
+    "status": "PASS",
+    "notes": "",
+    "priority": "Medium",
+    "response_time_ms": 5.55,
+    "endpoint": "/admin/auth/logout",
+    "method": "POST",
+    "status_code": 200,
+    "timestamp": "2026-06-03T07:23:24.230295"
   },
   {
     "module": "Organizer",
@@ -383,11 +513,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Critical",
-    "response_time_ms": 1694.71,
+    "response_time_ms": 1846.65,
     "endpoint": "/auth/register",
     "method": "POST",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:40.122193"
+    "timestamp": "2026-06-03T07:23:26.077046"
   },
   {
     "module": "Organizer",
@@ -396,11 +526,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Critical",
-    "response_time_ms": 11.57,
+    "response_time_ms": 13.36,
     "endpoint": "/organizer/dashboard",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:40.133783"
+    "timestamp": "2026-06-03T07:23:26.090442"
   },
   {
     "module": "Organizer",
@@ -409,11 +539,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Critical",
-    "response_time_ms": 8.13,
+    "response_time_ms": 10.71,
     "endpoint": "/organizer/dashboard/stats",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:40.141929"
+    "timestamp": "2026-06-03T07:23:26.101181"
   },
   {
     "module": "Organizer",
@@ -422,24 +552,24 @@
     "status": "PASS",
     "notes": "",
     "priority": "Critical",
-    "response_time_ms": 8.24,
+    "response_time_ms": 8.36,
     "endpoint": "/organizer/events",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:40.150179"
+    "timestamp": "2026-06-03T07:23:26.109570"
   },
   {
     "module": "Organizer",
     "feature": "Events",
     "test_case": "Create event with ticket tiers",
-    "status": "FAIL",
-    "notes": "Status 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"query\",\"title\"],\"msg\":\"Field required\",\"input\":null,\"url\":\"https://errors.pydantic.dev/2.5/v/missing\"}]}",
+    "status": "PASS",
+    "notes": "Event ID: 5",
     "priority": "Critical",
-    "response_time_ms": 4.61,
+    "response_time_ms": 8.4,
     "endpoint": "/organizer/events",
     "method": "POST",
-    "status_code": 422,
-    "timestamp": "2026-04-26T15:45:40.154842"
+    "status_code": 200,
+    "timestamp": "2026-06-03T07:23:26.117999"
   },
   {
     "module": "Organizer",
@@ -448,11 +578,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Critical",
-    "response_time_ms": 6.43,
+    "response_time_ms": 9.12,
     "endpoint": "/organizer/sales",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:40.161289"
+    "timestamp": "2026-06-03T07:23:26.127176"
   },
   {
     "module": "Organizer",
@@ -461,24 +591,24 @@
     "status": "PASS",
     "notes": "",
     "priority": "High",
-    "response_time_ms": 4.37,
+    "response_time_ms": 6.38,
     "endpoint": "/organizer/payouts",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:40.165673"
+    "timestamp": "2026-06-03T07:23:26.133569"
   },
   {
     "module": "Organizer",
     "feature": "Payouts",
     "test_case": "Request payout",
-    "status": "FAIL",
-    "notes": "Status 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"query\",\"amount\"],\"msg\":\"Field required\",\"input\":null,\"url\":\"https://errors.pydantic.dev/2.5/v/missing\"},{\"type\":\"missing\",\"loc\":[\"query\",\"payment_method\"],\"msg\":\"F",
+    "status": "PASS",
+    "notes": "",
     "priority": "High",
-    "response_time_ms": 3.62,
+    "response_time_ms": 7.83,
     "endpoint": "/organizer/payouts/request",
     "method": "POST",
-    "status_code": 422,
-    "timestamp": "2026-04-26T15:45:40.169305"
+    "status_code": 200,
+    "timestamp": "2026-06-03T07:23:26.141412"
   },
   {
     "module": "Venue",
@@ -487,11 +617,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Critical",
-    "response_time_ms": 2083.46,
+    "response_time_ms": 1784.52,
     "endpoint": "/auth/register",
     "method": "POST",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:42.252829"
+    "timestamp": "2026-06-03T07:23:27.926046"
   },
   {
     "module": "Venue",
@@ -500,11 +630,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Critical",
-    "response_time_ms": 26.7,
+    "response_time_ms": 17.63,
     "endpoint": "/venue/dashboard",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:42.279606"
+    "timestamp": "2026-06-03T07:23:27.943713"
   },
   {
     "module": "Venue",
@@ -513,11 +643,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Critical",
-    "response_time_ms": 7.81,
+    "response_time_ms": 11.94,
     "endpoint": "/venue/dashboard/stats",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:42.287435"
+    "timestamp": "2026-06-03T07:23:27.955761"
   },
   {
     "module": "Venue",
@@ -526,11 +656,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "High",
-    "response_time_ms": 7.84,
+    "response_time_ms": 8.98,
     "endpoint": "/venue/events",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:42.295290"
+    "timestamp": "2026-06-03T07:23:27.964774"
   },
   {
     "module": "Venue",
@@ -539,11 +669,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "High",
-    "response_time_ms": 59.52,
+    "response_time_ms": 9.2,
     "endpoint": "/venue/bookings",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:42.354826"
+    "timestamp": "2026-06-03T07:23:27.974001"
   },
   {
     "module": "Venue",
@@ -552,11 +682,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "High",
-    "response_time_ms": 4.97,
+    "response_time_ms": 8.73,
     "endpoint": "/venue/earnings",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:42.359802"
+    "timestamp": "2026-06-03T07:23:27.982761"
   },
   {
     "module": "Venue",
@@ -565,11 +695,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Medium",
-    "response_time_ms": 3.61,
+    "response_time_ms": 8.16,
     "endpoint": "/venue/settings",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:42.363449"
+    "timestamp": "2026-06-03T07:23:27.990953"
   },
   {
     "module": "Venue",
@@ -578,11 +708,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Medium",
-    "response_time_ms": 3.51,
+    "response_time_ms": 8.22,
     "endpoint": "/venue/subscription",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:42.366966"
+    "timestamp": "2026-06-03T07:23:27.999306"
   },
   {
     "module": "Venue",
@@ -591,11 +721,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Medium",
-    "response_time_ms": 3.75,
+    "response_time_ms": 6.0,
     "endpoint": "/venue/subscription/plans",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:42.370728"
+    "timestamp": "2026-06-03T07:23:28.005331"
   },
   {
     "module": "Sports",
@@ -604,102 +734,102 @@
     "status": "PASS",
     "notes": "",
     "priority": "Critical",
-    "response_time_ms": 1765.11,
+    "response_time_ms": 1787.08,
     "endpoint": "/auth/register",
     "method": "POST",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:44.135888"
+    "timestamp": "2026-06-03T07:23:29.792512"
   },
   {
     "module": "Sports",
     "feature": "Dashboard",
     "test_case": "Get sports dashboard",
-    "status": "PASS",
-    "notes": "",
+    "status": "FAIL",
+    "notes": "Status 404: {\"detail\":\"Not Found\"}",
     "priority": "Critical",
-    "response_time_ms": 14.86,
+    "response_time_ms": 6.94,
     "endpoint": "/sports/dashboard",
     "method": "GET",
-    "status_code": 200,
-    "timestamp": "2026-04-26T15:45:44.150771"
+    "status_code": 404,
+    "timestamp": "2026-06-03T07:23:29.799498"
   },
   {
     "module": "Sports",
     "feature": "Dashboard",
     "test_case": "Get sports stats",
-    "status": "PASS",
-    "notes": "",
+    "status": "FAIL",
+    "notes": "Status 404: {\"detail\":\"Not Found\"}",
     "priority": "Critical",
-    "response_time_ms": 6.77,
+    "response_time_ms": 4.45,
     "endpoint": "/sports/dashboard/stats",
     "method": "GET",
-    "status_code": 200,
-    "timestamp": "2026-04-26T15:45:44.157591"
+    "status_code": 404,
+    "timestamp": "2026-06-03T07:23:29.803976"
   },
   {
     "module": "Sports",
     "feature": "Courts",
     "test_case": "List courts",
-    "status": "PASS",
-    "notes": "",
+    "status": "FAIL",
+    "notes": "Status 404: {\"detail\":\"Not Found\"}",
     "priority": "Critical",
-    "response_time_ms": 5.63,
+    "response_time_ms": 3.97,
     "endpoint": "/sports/courts",
     "method": "GET",
-    "status_code": 200,
-    "timestamp": "2026-04-26T15:45:44.163273"
+    "status_code": 404,
+    "timestamp": "2026-06-03T07:23:29.807999"
   },
   {
     "module": "Sports",
     "feature": "Courts",
     "test_case": "Create court",
     "status": "FAIL",
-    "notes": "Status 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"query\",\"name\"],\"msg\":\"Field required\",\"input\":null,\"url\":\"https://errors.pydantic.dev/2.5/v/missing\"},{\"type\":\"missing\",\"loc\":[\"query\",\"sport_type\"],\"msg\":\"Field r",
+    "notes": "Status 404: {\"detail\":\"Not Found\"}",
     "priority": "Critical",
-    "response_time_ms": 3.67,
+    "response_time_ms": 2.98,
     "endpoint": "/sports/courts",
     "method": "POST",
-    "status_code": 422,
-    "timestamp": "2026-04-26T15:45:44.166964"
+    "status_code": 404,
+    "timestamp": "2026-06-03T07:23:29.810995"
   },
   {
     "module": "Sports",
     "feature": "Bookings",
     "test_case": "List sports bookings",
-    "status": "PASS",
-    "notes": "",
+    "status": "FAIL",
+    "notes": "Status 404: {\"detail\":\"Not Found\"}",
     "priority": "High",
-    "response_time_ms": 7.1,
+    "response_time_ms": 2.93,
     "endpoint": "/sports/bookings",
     "method": "GET",
-    "status_code": 200,
-    "timestamp": "2026-04-26T15:45:44.174077"
+    "status_code": 404,
+    "timestamp": "2026-06-03T07:23:29.813938"
   },
   {
     "module": "Sports",
     "feature": "Earnings",
     "test_case": "Get sports earnings",
-    "status": "PASS",
-    "notes": "",
+    "status": "FAIL",
+    "notes": "Status 404: {\"detail\":\"Not Found\"}",
     "priority": "High",
-    "response_time_ms": 5.13,
+    "response_time_ms": 3.13,
     "endpoint": "/sports/earnings",
     "method": "GET",
-    "status_code": 200,
-    "timestamp": "2026-04-26T15:45:44.179217"
+    "status_code": 404,
+    "timestamp": "2026-06-03T07:23:29.817084"
   },
   {
     "module": "Sports",
     "feature": "Subscription",
     "test_case": "Get sports subscription",
-    "status": "PASS",
-    "notes": "",
+    "status": "FAIL",
+    "notes": "Status 404: {\"detail\":\"Not Found\"}",
     "priority": "Medium",
-    "response_time_ms": 4.74,
+    "response_time_ms": 3.02,
     "endpoint": "/sports/subscription",
     "method": "GET",
-    "status_code": 200,
-    "timestamp": "2026-04-26T15:45:44.183963"
+    "status_code": 404,
+    "timestamp": "2026-06-03T07:23:29.820110"
   },
   {
     "module": "Payments",
@@ -708,11 +838,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Critical",
-    "response_time_ms": 3.53,
+    "response_time_ms": 4.41,
     "endpoint": "/payments/methods",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:44.187503"
+    "timestamp": "2026-06-03T07:23:29.824538"
   },
   {
     "module": "Payments",
@@ -725,7 +855,7 @@
     "endpoint": "/payments/orders",
     "method": "POST",
     "status_code": 0,
-    "timestamp": "2026-04-26T15:45:44.189985"
+    "timestamp": "2026-06-03T07:23:29.832076"
   },
   {
     "module": "Payments",
@@ -734,11 +864,11 @@
     "status": "FAIL",
     "notes": "Status 503: {\"detail\":\"Orange Money is not configured\"}",
     "priority": "Critical",
-    "response_time_ms": 2.84,
+    "response_time_ms": 5.16,
     "endpoint": "/orange-money/initiate",
     "method": "POST",
     "status_code": 503,
-    "timestamp": "2026-04-26T15:45:44.192831"
+    "timestamp": "2026-06-03T07:23:29.837250"
   },
   {
     "module": "Payments",
@@ -747,11 +877,11 @@
     "status": "FAIL",
     "notes": "Status 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"order_id\"],\"msg\":\"Field required\",\"input\":{\"amount\":50000,\"currency\":\"SLL\",\"description\":\"Test payment\"},\"url\":\"https://errors.pydantic.dev/2.5/v/missing\"}]",
     "priority": "Critical",
-    "response_time_ms": 2.75,
+    "response_time_ms": 6.31,
     "endpoint": "/monime/checkout/initiate",
     "method": "POST",
     "status_code": 422,
-    "timestamp": "2026-04-26T15:45:44.195593"
+    "timestamp": "2026-06-03T07:23:29.843584"
   },
   {
     "module": "Payments",
@@ -760,11 +890,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "High",
-    "response_time_ms": 2.39,
+    "response_time_ms": 5.84,
     "endpoint": "/payments/create-intent",
     "method": "POST",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:44.197991"
+    "timestamp": "2026-06-03T07:23:29.849446"
   },
   {
     "module": "Tickets",
@@ -773,11 +903,11 @@
     "status": "PASS",
     "notes": "Protected endpoint",
     "priority": "Critical",
-    "response_time_ms": 2.31,
+    "response_time_ms": 4.76,
     "endpoint": "/tickets/validate/:number",
     "method": "GET",
     "status_code": 401,
-    "timestamp": "2026-04-26T15:45:44.200319"
+    "timestamp": "2026-06-03T07:23:29.854226"
   },
   {
     "module": "Tickets",
@@ -786,11 +916,11 @@
     "status": "PASS",
     "notes": "Protected endpoint",
     "priority": "Critical",
-    "response_time_ms": 2.07,
+    "response_time_ms": 4.06,
     "endpoint": "/qr/validate",
     "method": "POST",
     "status_code": 401,
-    "timestamp": "2026-04-26T15:45:44.202398"
+    "timestamp": "2026-06-03T07:23:29.858308"
   },
   {
     "module": "Tickets",
@@ -799,11 +929,11 @@
     "status": "PASS",
     "notes": "Protected endpoint",
     "priority": "High",
-    "response_time_ms": 2.04,
+    "response_time_ms": 3.61,
     "endpoint": "/payments/tickets/lookup/:token",
     "method": "GET",
     "status_code": 401,
-    "timestamp": "2026-04-26T15:45:44.204448"
+    "timestamp": "2026-06-03T07:23:29.861933"
   },
   {
     "module": "Subscriptions",
@@ -812,11 +942,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Medium",
-    "response_time_ms": 2.01,
+    "response_time_ms": 3.15,
     "endpoint": "/subscriptions/plans",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:44.206472"
+    "timestamp": "2026-06-03T07:23:29.865097"
   },
   {
     "module": "Subscriptions",
@@ -825,11 +955,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Medium",
-    "response_time_ms": 2.77,
+    "response_time_ms": 5.29,
     "endpoint": "/subscriptions/my",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:44.209246"
+    "timestamp": "2026-06-03T07:23:29.870399"
   },
   {
     "module": "Subscriptions",
@@ -838,11 +968,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Medium",
-    "response_time_ms": 2.89,
+    "response_time_ms": 6.07,
     "endpoint": "/subscriptions/transactions",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:44.212166"
+    "timestamp": "2026-06-03T07:23:29.876539"
   },
   {
     "module": "Security",
@@ -851,11 +981,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Critical",
-    "response_time_ms": 1.87,
+    "response_time_ms": 4.32,
     "endpoint": "/tickets/user",
     "method": "GET",
     "status_code": 401,
-    "timestamp": "2026-04-26T15:45:44.214042"
+    "timestamp": "2026-06-03T07:23:29.880870"
   },
   {
     "module": "Security",
@@ -864,11 +994,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Critical",
-    "response_time_ms": 1.93,
+    "response_time_ms": 3.18,
     "endpoint": "/tickets/user",
     "method": "GET",
     "status_code": 401,
-    "timestamp": "2026-04-26T15:45:44.215977"
+    "timestamp": "2026-06-03T07:23:29.884058"
   },
   {
     "module": "Security",
@@ -877,11 +1007,11 @@
     "status": "PASS",
     "notes": "",
     "priority": "Critical",
-    "response_time_ms": 1.91,
+    "response_time_ms": 3.54,
     "endpoint": "/tickets/user",
     "method": "GET",
     "status_code": 401,
-    "timestamp": "2026-04-26T15:45:44.217891"
+    "timestamp": "2026-06-03T07:23:29.887611"
   },
   {
     "module": "Security",
@@ -890,11 +1020,11 @@
     "status": "PASS",
     "notes": "Status 401",
     "priority": "Critical",
-    "response_time_ms": 3.91,
+    "response_time_ms": 5.55,
     "endpoint": "/admin/users",
     "method": "GET",
     "status_code": 401,
-    "timestamp": "2026-04-26T15:45:44.221806"
+    "timestamp": "2026-06-03T07:23:29.893196"
   },
   {
     "module": "Security",
@@ -903,23 +1033,23 @@
     "status": "PASS",
     "notes": "Status 200",
     "priority": "Critical",
-    "response_time_ms": 2.72,
+    "response_time_ms": 9.92,
     "endpoint": "/events?id=...",
     "method": "GET",
     "status_code": 200,
-    "timestamp": "2026-04-26T15:45:44.224561"
+    "timestamp": "2026-06-03T07:23:29.903213"
   },
   {
     "module": "Security",
     "feature": "Input",
     "test_case": "XSS in contact form handled",
-    "status": "PASS",
-    "notes": "Status 200",
+    "status": "FAIL",
+    "notes": "Status 429: {\"detail\":\"3 per 1 hour\"}",
     "priority": "Critical",
-    "response_time_ms": 3.46,
+    "response_time_ms": 4.8,
     "endpoint": "/contact",
     "method": "POST",
-    "status_code": 200,
-    "timestamp": "2026-04-26T15:45:44.228054"
+    "status_code": 429,
+    "timestamp": "2026-06-03T07:23:29.908052"
   }
 ]

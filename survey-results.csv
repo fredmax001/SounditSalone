@@ -1,72 +1,82 @@
 module,feature,test_case,status,notes,priority,response_time_ms,endpoint,method,status_code,timestamp
-Auth,Roles,Get available roles,FAIL,Empty roles list,Critical,7.01,/auth/roles,GET,200,2026-04-26T15:45:33.506537
-Auth,Register,Register with valid data,PASS,User ID: 22,Critical,1949.77,/auth/register,POST,200,2026-04-26T15:45:35.456449
-Auth,Register,Duplicate email/phone handled,PASS,,Critical,4.78,/auth/register,POST,409,2026-04-26T15:45:35.461252
-Auth,Login,Login with email+password,PASS,,Critical,238.86,/auth/login,POST,200,2026-04-26T15:45:35.700130
-Auth,Login,Invalid credentials rejected,PASS,,Critical,230.08,/auth/login,POST,401,2026-04-26T15:45:35.930263
-Auth,Profile,Get current user,PASS,,Critical,4.15,/auth/me,GET,200,2026-04-26T15:45:35.934422
-Auth,Token,Refresh access token,FAIL,Status 401,Critical,2.07,/auth/refresh,POST,401,2026-04-26T15:45:35.936501
-Auth,Password,Password reset request,PASS,,High,1485.0,/auth/password-reset-request,POST,200,2026-04-26T15:45:37.421529
-Auth,Password,Change password,PASS,,High,476.16,/auth/change-password,POST,200,2026-04-26T15:45:37.897713
-Auth,OAuth,Google OAuth config,PASS,,Medium,2.24,/auth/google/config,GET,200,2026-04-26T15:45:38.357703
-Platform,Stats,Get platform stats,WARNING,Status 404,Medium,2.38,/stats,GET,404,2026-04-26T15:45:38.360101
-Platform,Events,List events,PASS,Found 0 events,Critical,2.78,/events,GET,200,2026-04-26T15:45:38.362892
-Platform,Venues,List venues/clubs,PASS,Found 0 venues,Critical,2.98,/clubs,GET,200,2026-04-26T15:45:38.365887
-Platform,Sports,List leagues,PASS,Found 0 leagues,Medium,3.53,/sports/leagues,GET,200,2026-04-26T15:45:38.369462
-Platform,Sports,List fixtures,PASS,,Medium,3.19,/sports/fixtures,GET,200,2026-04-26T15:45:38.372659
-Platform,Music,List mixes,PASS,,Low,2.01,/music/mixes,GET,200,2026-04-26T15:45:38.374676
-Platform,Recaps,List recaps,PASS,,Low,2.51,/recaps,GET,200,2026-04-26T15:45:38.377189
-Platform,Contact,Get contact categories,PASS,,Medium,1.63,/contact/categories,GET,200,2026-04-26T15:45:38.378822
-Platform,Contact,Submit contact form,PASS,,Medium,4.53,/contact,POST,200,2026-04-26T15:45:38.383384
-User,Tickets,Get my tickets,PASS,,Critical,7.23,/tickets/user,GET,200,2026-04-26T15:45:38.390619
-User,Orders,Get my orders,PASS,,Critical,6.39,/orders/user,GET,200,2026-04-26T15:45:38.397020
-User,Events,Get my events,PASS,,High,3.15,/events/me,GET,200,2026-04-26T15:45:38.400175
-User,Notifications,Get notifications,PASS,,Medium,5.01,/notifications,GET,200,2026-04-26T15:45:38.405189
-User,Notifications,Get notification count,PASS,,Medium,5.3,/notifications/count,GET,200,2026-04-26T15:45:38.410528
-User,Settings,Get user settings,PASS,,Medium,3.37,/users/me/settings,GET,200,2026-04-26T15:45:38.413908
-User,Settings,Update user settings,PASS,,Medium,3.54,/users/me/settings,PATCH,200,2026-04-26T15:45:38.417458
-User,Favorites,Get favorite events,PASS,,Low,3.32,/favorites/events,GET,200,2026-04-26T15:45:38.420789
-User,Cart,Sync cart,PASS,,Medium,2.92,/cart/sync,POST,200,2026-04-26T15:45:38.423714
-Admin,Auth,Admin login,FAIL,"Status 401: {""detail"":""Invalid credentials""}",Critical,3.69,/admin/auth/login,POST,401,2026-04-26T15:45:38.427415
-Organizer,Auth,Register organizer,PASS,,Critical,1694.71,/auth/register,POST,200,2026-04-26T15:45:40.122193
-Organizer,Dashboard,Get organizer dashboard,PASS,,Critical,11.57,/organizer/dashboard,GET,200,2026-04-26T15:45:40.133783
-Organizer,Dashboard,Get dashboard stats,PASS,,Critical,8.13,/organizer/dashboard/stats,GET,200,2026-04-26T15:45:40.141929
-Organizer,Events,List organizer events,PASS,,Critical,8.24,/organizer/events,GET,200,2026-04-26T15:45:40.150179
-Organizer,Events,Create event with ticket tiers,FAIL,"Status 422: {""detail"":[{""type"":""missing"",""loc"":[""query"",""title""],""msg"":""Field required"",""input"":null,""url"":""https://errors.pydantic.dev/2.5/v/missing""}]}",Critical,4.61,/organizer/events,POST,422,2026-04-26T15:45:40.154842
-Organizer,Sales,Get sales data,PASS,,Critical,6.43,/organizer/sales,GET,200,2026-04-26T15:45:40.161289
-Organizer,Payouts,Get payouts,PASS,,High,4.37,/organizer/payouts,GET,200,2026-04-26T15:45:40.165673
-Organizer,Payouts,Request payout,FAIL,"Status 422: {""detail"":[{""type"":""missing"",""loc"":[""query"",""amount""],""msg"":""Field required"",""input"":null,""url"":""https://errors.pydantic.dev/2.5/v/missing""},{""type"":""missing"",""loc"":[""query"",""payment_method""],""msg"":""F",High,3.62,/organizer/payouts/request,POST,422,2026-04-26T15:45:40.169305
-Venue,Auth,Register venue owner,PASS,,Critical,2083.46,/auth/register,POST,200,2026-04-26T15:45:42.252829
-Venue,Dashboard,Get venue dashboard,PASS,,Critical,26.7,/venue/dashboard,GET,200,2026-04-26T15:45:42.279606
-Venue,Dashboard,Get venue stats,PASS,,Critical,7.81,/venue/dashboard/stats,GET,200,2026-04-26T15:45:42.287435
-Venue,Events,Get venue events,PASS,,High,7.84,/venue/events,GET,200,2026-04-26T15:45:42.295290
-Venue,Bookings,Get venue bookings,PASS,,High,59.52,/venue/bookings,GET,200,2026-04-26T15:45:42.354826
-Venue,Earnings,Get venue earnings,PASS,,High,4.97,/venue/earnings,GET,200,2026-04-26T15:45:42.359802
-Venue,Settings,Get venue settings,PASS,,Medium,3.61,/venue/settings,GET,200,2026-04-26T15:45:42.363449
-Venue,Subscription,Get venue subscription,PASS,,Medium,3.51,/venue/subscription,GET,200,2026-04-26T15:45:42.366966
-Venue,Subscription,Get subscription plans,PASS,,Medium,3.75,/venue/subscription/plans,GET,200,2026-04-26T15:45:42.370728
-Sports,Auth,Register sports facility,PASS,,Critical,1765.11,/auth/register,POST,200,2026-04-26T15:45:44.135888
-Sports,Dashboard,Get sports dashboard,PASS,,Critical,14.86,/sports/dashboard,GET,200,2026-04-26T15:45:44.150771
-Sports,Dashboard,Get sports stats,PASS,,Critical,6.77,/sports/dashboard/stats,GET,200,2026-04-26T15:45:44.157591
-Sports,Courts,List courts,PASS,,Critical,5.63,/sports/courts,GET,200,2026-04-26T15:45:44.163273
-Sports,Courts,Create court,FAIL,"Status 422: {""detail"":[{""type"":""missing"",""loc"":[""query"",""name""],""msg"":""Field required"",""input"":null,""url"":""https://errors.pydantic.dev/2.5/v/missing""},{""type"":""missing"",""loc"":[""query"",""sport_type""],""msg"":""Field r",Critical,3.67,/sports/courts,POST,422,2026-04-26T15:45:44.166964
-Sports,Bookings,List sports bookings,PASS,,High,7.1,/sports/bookings,GET,200,2026-04-26T15:45:44.174077
-Sports,Earnings,Get sports earnings,PASS,,High,5.13,/sports/earnings,GET,200,2026-04-26T15:45:44.179217
-Sports,Subscription,Get sports subscription,PASS,,Medium,4.74,/sports/subscription,GET,200,2026-04-26T15:45:44.183963
-Payments,Methods,Get payment methods,PASS,,Critical,3.53,/payments/methods,GET,200,2026-04-26T15:45:44.187503
-Payments,Orders,Create order,FAIL,No events found,Critical,0,/payments/orders,POST,0,2026-04-26T15:45:44.189985
-Payments,Orange Money,Initiate payment,FAIL,"Status 503: {""detail"":""Orange Money is not configured""}",Critical,2.84,/orange-money/initiate,POST,503,2026-04-26T15:45:44.192831
-Payments,Monime,Initiate checkout,FAIL,"Status 422: {""detail"":[{""type"":""missing"",""loc"":[""body"",""order_id""],""msg"":""Field required"",""input"":{""amount"":50000,""currency"":""SLL"",""description"":""Test payment""},""url"":""https://errors.pydantic.dev/2.5/v/missing""}]",Critical,2.75,/monime/checkout/initiate,POST,422,2026-04-26T15:45:44.195593
-Payments,Stripe,Create payment intent,PASS,,High,2.39,/payments/create-intent,POST,200,2026-04-26T15:45:44.197991
-Tickets,Validation,Ticket validate requires auth,PASS,Protected endpoint,Critical,2.31,/tickets/validate/:number,GET,401,2026-04-26T15:45:44.200319
-Tickets,Validation,QR validate requires auth,PASS,Protected endpoint,Critical,2.07,/qr/validate,POST,401,2026-04-26T15:45:44.202398
-Tickets,Lookup,Ticket lookup requires auth,PASS,Protected endpoint,High,2.04,/payments/tickets/lookup/:token,GET,401,2026-04-26T15:45:44.204448
-Subscriptions,Plans,Get public subscription plans,PASS,,Medium,2.01,/subscriptions/plans,GET,200,2026-04-26T15:45:44.206472
-Subscriptions,My Plan,Get my subscription,PASS,,Medium,2.77,/subscriptions/my,GET,200,2026-04-26T15:45:44.209246
-Subscriptions,Transactions,Get subscription transactions,PASS,,Medium,2.89,/subscriptions/transactions,GET,200,2026-04-26T15:45:44.212166
-Security,Auth,Protected endpoint rejects no-auth,PASS,,Critical,1.87,/tickets/user,GET,401,2026-04-26T15:45:44.214042
-Security,Auth,Invalid token rejected,PASS,,Critical,1.93,/tickets/user,GET,401,2026-04-26T15:45:44.215977
-Security,Auth,Malformed auth header rejected,PASS,,Critical,1.91,/tickets/user,GET,401,2026-04-26T15:45:44.217891
-Security,RBAC,Regular user blocked from admin,PASS,Status 401,Critical,3.91,/admin/users,GET,401,2026-04-26T15:45:44.221806
-Security,Input,SQL injection in query param,PASS,Status 200,Critical,2.72,/events?id=...,GET,200,2026-04-26T15:45:44.224561
-Security,Input,XSS in contact form handled,PASS,Status 200,Critical,3.46,/contact,POST,200,2026-04-26T15:45:44.228054
+Auth,Roles,Get available roles,PASS,Found 3 roles,Critical,10.94,/auth/roles,GET,200,2026-06-03T07:23:18.097366
+Auth,Register,Register with valid data,PASS,User ID: 43,Critical,2083.29,/auth/register,POST,200,2026-06-03T07:23:20.180885
+Auth,Register,Duplicate email/phone handled,PASS,,Critical,8.08,/auth/register,POST,409,2026-06-03T07:23:20.189010
+Auth,Login,Login with email+password,PASS,,Critical,333.23,/auth/login,POST,200,2026-06-03T07:23:20.522309
+Auth,Login,Invalid credentials rejected,PASS,,Critical,318.72,/auth/login,POST,401,2026-06-03T07:23:20.841079
+Auth,Profile,Get current user,PASS,,Critical,5.58,/auth/me,GET,200,2026-06-03T07:23:20.846766
+Auth,Token,Refresh access token,PASS,,Critical,4.99,/auth/refresh,POST,200,2026-06-03T07:23:20.851770
+Auth,Password,Password reset request,PASS,,High,1552.33,/auth/password-reset-request,POST,200,2026-06-03T07:23:22.404119
+Auth,Password,Change password,PASS,,High,632.84,/auth/change-password,POST,200,2026-06-03T07:23:23.036997
+Auth,OAuth,Google OAuth config,PASS,,Medium,2.7,/auth/google/config,GET,200,2026-06-03T07:23:23.674925
+Platform,Stats,Get platform stats,WARNING,Status 404,Medium,3.07,/stats,GET,404,2026-06-03T07:23:23.678034
+Platform,Events,List events,PASS,Found 0 events,Critical,7.03,/events,GET,200,2026-06-03T07:23:23.685122
+Platform,Venues,List venues/clubs,PASS,Found 4 venues,Critical,6.04,/clubs,GET,200,2026-06-03T07:23:23.691239
+Platform,Sports,List leagues,FAIL,Status 404,Medium,5.19,/sports/leagues,GET,404,2026-06-03T07:23:23.696454
+Platform,Sports,List fixtures,FAIL,Status 404,Medium,6.01,/sports/fixtures,GET,404,2026-06-03T07:23:23.702567
+Platform,Music,List mixes,FAIL,Status 404,Low,5.22,/music/mixes,GET,404,2026-06-03T07:23:23.707809
+Platform,Recaps,List recaps,PASS,,Low,7.5,/recaps,GET,200,2026-06-03T07:23:23.715322
+Platform,Contact,Get contact categories,PASS,,Medium,3.3,/contact/categories,GET,200,2026-06-03T07:23:23.718644
+Platform,Contact,Submit contact form,PASS,,Medium,7.73,/contact,POST,200,2026-06-03T07:23:23.726394
+User,Tickets,Get my tickets,PASS,,Critical,9.25,/tickets/user,GET,200,2026-06-03T07:23:23.735664
+User,Orders,Get my orders,PASS,,Critical,7.82,/orders/user,GET,200,2026-06-03T07:23:23.743498
+User,Events,Get my events,PASS,,High,6.78,/events/me,GET,200,2026-06-03T07:23:23.750345
+User,Notifications,Get notifications,PASS,,Medium,6.54,/notifications,GET,200,2026-06-03T07:23:23.756906
+User,Notifications,Get notification count,PASS,,Medium,7.3,/notifications/count,GET,200,2026-06-03T07:23:23.764228
+User,Settings,Get user settings,PASS,,Medium,7.16,/users/me/settings,GET,200,2026-06-03T07:23:23.771456
+User,Settings,Update user settings,PASS,,Medium,6.57,/users/me/settings,PATCH,200,2026-06-03T07:23:23.778042
+User,Favorites,Get favorite events,PASS,,Low,6.51,/favorites/events,GET,200,2026-06-03T07:23:23.784572
+User,Cart,Sync cart,PASS,,Medium,6.12,/cart/sync,POST,200,2026-06-03T07:23:23.790716
+Admin,Auth,Admin login,PASS,,Critical,365.78,/admin/auth/login,POST,200,2026-06-03T07:23:24.156548
+Admin,Dashboard,Super admin dashboard,PASS,,Critical,13.89,/admin/super/dashboard,GET,200,2026-06-03T07:23:24.170515
+Admin,Users,List all users,PASS,Found 0 users,Critical,7.75,/admin/users,GET,200,2026-06-03T07:23:24.178318
+Admin,Finance,List transactions,PASS,,Critical,6.49,/admin/finance/transactions,GET,200,2026-06-03T07:23:24.184831
+Admin,Finance,List payouts,PASS,,Critical,6.26,/admin/finance/payouts,GET,200,2026-06-03T07:23:24.191115
+Admin,Config,Get system config,PASS,,High,6.71,/admin/config,GET,200,2026-06-03T07:23:24.197842
+Admin,Verifications,List verification requests,PASS,,High,7.98,/admin/verifications,GET,200,2026-06-03T07:23:24.205969
+Admin,Audit,Get activity logs,PASS,,Medium,5.98,/admin/activity-logs,GET,200,2026-06-03T07:23:24.211969
+Admin,Finance,Get commission rates,PASS,,High,6.51,/admin/commission-rates,GET,200,2026-06-03T07:23:24.218504
+Admin,Config,Get system flags,PASS,,Medium,6.19,/admin/system-flags,GET,200,2026-06-03T07:23:24.224724
+Admin,Auth,Admin logout,PASS,,Medium,5.55,/admin/auth/logout,POST,200,2026-06-03T07:23:24.230295
+Organizer,Auth,Register organizer,PASS,,Critical,1846.65,/auth/register,POST,200,2026-06-03T07:23:26.077046
+Organizer,Dashboard,Get organizer dashboard,PASS,,Critical,13.36,/organizer/dashboard,GET,200,2026-06-03T07:23:26.090442
+Organizer,Dashboard,Get dashboard stats,PASS,,Critical,10.71,/organizer/dashboard/stats,GET,200,2026-06-03T07:23:26.101181
+Organizer,Events,List organizer events,PASS,,Critical,8.36,/organizer/events,GET,200,2026-06-03T07:23:26.109570
+Organizer,Events,Create event with ticket tiers,PASS,Event ID: 5,Critical,8.4,/organizer/events,POST,200,2026-06-03T07:23:26.117999
+Organizer,Sales,Get sales data,PASS,,Critical,9.12,/organizer/sales,GET,200,2026-06-03T07:23:26.127176
+Organizer,Payouts,Get payouts,PASS,,High,6.38,/organizer/payouts,GET,200,2026-06-03T07:23:26.133569
+Organizer,Payouts,Request payout,PASS,,High,7.83,/organizer/payouts/request,POST,200,2026-06-03T07:23:26.141412
+Venue,Auth,Register venue owner,PASS,,Critical,1784.52,/auth/register,POST,200,2026-06-03T07:23:27.926046
+Venue,Dashboard,Get venue dashboard,PASS,,Critical,17.63,/venue/dashboard,GET,200,2026-06-03T07:23:27.943713
+Venue,Dashboard,Get venue stats,PASS,,Critical,11.94,/venue/dashboard/stats,GET,200,2026-06-03T07:23:27.955761
+Venue,Events,Get venue events,PASS,,High,8.98,/venue/events,GET,200,2026-06-03T07:23:27.964774
+Venue,Bookings,Get venue bookings,PASS,,High,9.2,/venue/bookings,GET,200,2026-06-03T07:23:27.974001
+Venue,Earnings,Get venue earnings,PASS,,High,8.73,/venue/earnings,GET,200,2026-06-03T07:23:27.982761
+Venue,Settings,Get venue settings,PASS,,Medium,8.16,/venue/settings,GET,200,2026-06-03T07:23:27.990953
+Venue,Subscription,Get venue subscription,PASS,,Medium,8.22,/venue/subscription,GET,200,2026-06-03T07:23:27.999306
+Venue,Subscription,Get subscription plans,PASS,,Medium,6.0,/venue/subscription/plans,GET,200,2026-06-03T07:23:28.005331
+Sports,Auth,Register sports facility,PASS,,Critical,1787.08,/auth/register,POST,200,2026-06-03T07:23:29.792512
+Sports,Dashboard,Get sports dashboard,FAIL,"Status 404: {""detail"":""Not Found""}",Critical,6.94,/sports/dashboard,GET,404,2026-06-03T07:23:29.799498
+Sports,Dashboard,Get sports stats,FAIL,"Status 404: {""detail"":""Not Found""}",Critical,4.45,/sports/dashboard/stats,GET,404,2026-06-03T07:23:29.803976
+Sports,Courts,List courts,FAIL,"Status 404: {""detail"":""Not Found""}",Critical,3.97,/sports/courts,GET,404,2026-06-03T07:23:29.807999
+Sports,Courts,Create court,FAIL,"Status 404: {""detail"":""Not Found""}",Critical,2.98,/sports/courts,POST,404,2026-06-03T07:23:29.810995
+Sports,Bookings,List sports bookings,FAIL,"Status 404: {""detail"":""Not Found""}",High,2.93,/sports/bookings,GET,404,2026-06-03T07:23:29.813938
+Sports,Earnings,Get sports earnings,FAIL,"Status 404: {""detail"":""Not Found""}",High,3.13,/sports/earnings,GET,404,2026-06-03T07:23:29.817084
+Sports,Subscription,Get sports subscription,FAIL,"Status 404: {""detail"":""Not Found""}",Medium,3.02,/sports/subscription,GET,404,2026-06-03T07:23:29.820110
+Payments,Methods,Get payment methods,PASS,,Critical,4.41,/payments/methods,GET,200,2026-06-03T07:23:29.824538
+Payments,Orders,Create order,FAIL,No events found,Critical,0,/payments/orders,POST,0,2026-06-03T07:23:29.832076
+Payments,Orange Money,Initiate payment,FAIL,"Status 503: {""detail"":""Orange Money is not configured""}",Critical,5.16,/orange-money/initiate,POST,503,2026-06-03T07:23:29.837250
+Payments,Monime,Initiate checkout,FAIL,"Status 422: {""detail"":[{""type"":""missing"",""loc"":[""body"",""order_id""],""msg"":""Field required"",""input"":{""amount"":50000,""currency"":""SLL"",""description"":""Test payment""},""url"":""https://errors.pydantic.dev/2.5/v/missing""}]",Critical,6.31,/monime/checkout/initiate,POST,422,2026-06-03T07:23:29.843584
+Payments,Stripe,Create payment intent,PASS,,High,5.84,/payments/create-intent,POST,200,2026-06-03T07:23:29.849446
+Tickets,Validation,Ticket validate requires auth,PASS,Protected endpoint,Critical,4.76,/tickets/validate/:number,GET,401,2026-06-03T07:23:29.854226
+Tickets,Validation,QR validate requires auth,PASS,Protected endpoint,Critical,4.06,/qr/validate,POST,401,2026-06-03T07:23:29.858308
+Tickets,Lookup,Ticket lookup requires auth,PASS,Protected endpoint,High,3.61,/payments/tickets/lookup/:token,GET,401,2026-06-03T07:23:29.861933
+Subscriptions,Plans,Get public subscription plans,PASS,,Medium,3.15,/subscriptions/plans,GET,200,2026-06-03T07:23:29.865097
+Subscriptions,My Plan,Get my subscription,PASS,,Medium,5.29,/subscriptions/my,GET,200,2026-06-03T07:23:29.870399
+Subscriptions,Transactions,Get subscription transactions,PASS,,Medium,6.07,/subscriptions/transactions,GET,200,2026-06-03T07:23:29.876539
+Security,Auth,Protected endpoint rejects no-auth,PASS,,Critical,4.32,/tickets/user,GET,401,2026-06-03T07:23:29.880870
+Security,Auth,Invalid token rejected,PASS,,Critical,3.18,/tickets/user,GET,401,2026-06-03T07:23:29.884058
+Security,Auth,Malformed auth header rejected,PASS,,Critical,3.54,/tickets/user,GET,401,2026-06-03T07:23:29.887611
+Security,RBAC,Regular user blocked from admin,PASS,Status 401,Critical,5.55,/admin/users,GET,401,2026-06-03T07:23:29.893196
+Security,Input,SQL injection in query param,PASS,Status 200,Critical,9.92,/events?id=...,GET,200,2026-06-03T07:23:29.903213
+Security,Input,XSS in contact form handled,FAIL,"Status 429: {""detail"":""3 per 1 hour""}",Critical,4.8,/contact,POST,429,2026-06-03T07:23:29.908052

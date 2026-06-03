@@ -87,58 +87,59 @@ def init_db():
 def _seed_platform_defaults() -> None:
     """Seed core Sierra Leone platform defaults for roles, config, and plans."""
     from models_platform import AdminRole, SubscriptionPlan
-    from models import SystemConfig
+    from models import SystemConfig, AdminUser, AdminRole as ModelAdminRole
+    from auth import get_password_hash
 
     db = SessionLocal()
     try:
-        # Check if seeding is even needed
+        # Check if seeding is even needed for roles
         existing_roles = db.query(AdminRole).count()
         if existing_roles > 0:
-            print(f"Database already seeded with {existing_roles} roles, skipping seeding")
-            return
-        default_roles = [
-            {
-                "name": "Super Admin",
-                "role_type": "super_admin",
-                "description": "Full platform control",
-                "permissions": ["*"],
-            },
-            {
-                "name": "Finance Admin",
-                "role_type": "finance_admin",
-                "description": "Transactions, payouts, and commission control",
-                "permissions": ["finance.read", "finance.write"],
-            },
-            {
-                "name": "Marketing Admin",
-                "role_type": "marketing_admin",
-                "description": "Promotions, campaigns, and featured placement",
-                "permissions": ["marketing.read", "marketing.write", "featured.manage"],
-            },
-            {
-                "name": "Maintenance Admin",
-                "role_type": "maintenance_admin",
-                "description": "System health, logs, and platform maintenance",
-                "permissions": ["system.read", "system.maintenance", "logs.read"],
-            },
-            {
-                "name": "Support Admin",
-                "role_type": "support_admin",
-                "description": "Support ticket and user issue resolution",
-                "permissions": ["support.read", "support.write", "users.lookup"],
-            },
-        ]
+            print(f"Database already seeded with {existing_roles} roles, skipping role seeding")
+        else:
+            default_roles = [
+                {
+                    "name": "Super Admin",
+                    "role_type": "super_admin",
+                    "description": "Full platform control",
+                    "permissions": ["*"],
+                },
+                {
+                    "name": "Finance Admin",
+                    "role_type": "finance_admin",
+                    "description": "Transactions, payouts, and commission control",
+                    "permissions": ["finance.read", "finance.write"],
+                },
+                {
+                    "name": "Marketing Admin",
+                    "role_type": "marketing_admin",
+                    "description": "Promotions, campaigns, and featured placement",
+                    "permissions": ["marketing.read", "marketing.write", "featured.manage"],
+                },
+                {
+                    "name": "Maintenance Admin",
+                    "role_type": "maintenance_admin",
+                    "description": "System health, logs, and platform maintenance",
+                    "permissions": ["system.read", "system.maintenance", "logs.read"],
+                },
+                {
+                    "name": "Support Admin",
+                    "role_type": "support_admin",
+                    "description": "Support ticket and user issue resolution",
+                    "permissions": ["support.read", "support.write", "users.lookup"],
+                },
+            ]
 
-        for role_data in default_roles:
-            role = db.query(AdminRole).filter(AdminRole.role_type == role_data["role_type"]).first()
-            if not role:
-                db.add(AdminRole(**role_data))
-            else:
-                role.name = role_data["name"]
-                role.description = role_data["description"]
-                role.permissions = role_data["permissions"]
-                role.is_active = True
-                role.is_system_role = True
+            for role_data in default_roles:
+                role = db.query(AdminRole).filter(AdminRole.role_type == role_data["role_type"]).first()
+                if not role:
+                    db.add(AdminRole(**role_data))
+                else:
+                    role.name = role_data["name"]
+                    role.description = role_data["description"]
+                    role.permissions = role_data["permissions"]
+                    role.is_active = True
+                    role.is_system_role = True
 
         default_config = [
             ("country", {"value": "Sierra Leone"}, "local", "Primary operating country"),
@@ -217,6 +218,19 @@ def _seed_platform_defaults() -> None:
             else:
                 for key, value in plan_data.items():
                     setattr(plan, key, value)
+
+        # Seed default Admin User
+        admin_user = db.query(AdminUser).filter(AdminUser.email == "admin").first()
+        if not admin_user:
+            admin_user = AdminUser(
+                email="admin",
+                password_hash=get_password_hash("admin123"),
+                full_name="Super Admin",
+                role=ModelAdminRole.SUPER_ADMIN,
+                status="active"
+            )
+            db.add(admin_user)
+            print("Default admin user created")
 
         db.commit()
     finally:
