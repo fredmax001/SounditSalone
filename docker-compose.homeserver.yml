@@ -1,136 +1,30 @@
-# ============================================================
-# Sound It Platform - Home Server Deployment
-# Deploys the backend app to the existing home server infrastructure
-# ============================================================
-# Usage:
-#   docker-compose -f docker-compose.homeserver.yml up -d --build
-# ============================================================
-
 version: '3.8'
 
+# Home server deployment - uses existing postgres/redis from soundit-cloud stack
+# and builds the app image from a cached Alpine base to avoid Docker Hub pulls.
+
 services:
-  # Main Application
   app:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: soundit-app
-    restart: always
+      dockerfile: Dockerfile.homeserver
+    container_name: soundit-backend-app
     environment:
-      # Database (existing postgres)
-      DATABASE_URL: postgresql://soundit:Soundit@2020@postgres:5432/soundit_db
-      
-      # Redis (existing redis, no password)
-      REDIS_URL: redis://redis:6379/0
-      
-      # Application
+      DATABASE_URL: postgresql://soundit:Soundit@2020@soundit-postgres:5432/soundit_db
+      REDIS_URL: redis://soundit-redis:6379/0
       ENVIRONMENT: production
-      DEBUG: "false"
-      DEVELOPER_MODE: "false"
-      SECRET_KEY: ${SECRET_KEY:-soundit-prod-secret-2024-secure-key-do-not-share}
-      BASE_URL: ${BASE_URL:-http://192.168.2.14}
-      
-      # CORS
-      CORS_ORIGINS: ${CORS_ORIGINS:-http://192.168.2.14,http://localhost:5173}
-      
-      # AWS S3
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
-      AWS_S3_BUCKET: ${AWS_S3_BUCKET:-sound-it-uploads}
-      AWS_REGION: ${AWS_REGION:-us-east-1}
-      AWS_CLOUDFRONT_URL: ${AWS_CLOUDFRONT_URL:-}
-      
-      # Email
-      SENDGRID_API_KEY: ${SENDGRID_API_KEY:-}
-      SENDGRID_FROM_EMAIL: ${SENDGRID_FROM_EMAIL:-noreply@sounditentsl.com}
-      
-      # SMS
-      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
-      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
-      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER:-}
-      TWILIO_VERIFY_SERVICE_SID: ${TWILIO_VERIFY_SERVICE_SID:-}
-      
-      # Payments
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
-      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
-      
-      # Monitoring
-      SENTRY_DSN: ${SENTRY_DSN:-}
-      LOG_LEVEL: ${LOG_LEVEL:-INFO}
-      
-    expose:
-      - "8000"
-    volumes:
-      - app_logs:/app/logs
-      - app_uploads:/app/static/uploads
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
     networks:
-      - soundit-network
-
-  # Celery Worker (for background tasks)
-  worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: soundit-worker
-    restart: always
-    command: celery -A tasks worker --loglevel=info --concurrency=4
-    environment:
-      DATABASE_URL: postgresql://soundit:Soundit@2020@postgres:5432/soundit_db
-      REDIS_URL: redis://redis:6379/0
-      ENVIRONMENT: production
-      SECRET_KEY: ${SECRET_KEY:-soundit-prod-secret-2024-secure-key-do-not-share}
-      SENDGRID_API_KEY: ${SENDGRID_API_KEY:-}
-      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
-      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
-    networks:
-      - soundit-network
-
-  # Celery Beat (for scheduled tasks)
-  beat:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: soundit-beat
-    restart: always
-    command: celery -A tasks beat --loglevel=info
-    environment:
-      DATABASE_URL: postgresql://soundit:Soundit@2020@postgres:5432/soundit_db
-      REDIS_URL: redis://redis:6379/0
-      ENVIRONMENT: production
-      SECRET_KEY: ${SECRET_KEY:-soundit-prod-secret-2024-secure-key-do-not-share}
-    networks:
-      - soundit-network
-
-  # Nginx Reverse Proxy (replaces old nginx)
-  nginx:
-    image: nginx:alpine
-    container_name: soundit-nginx
-    restart: always
+      - soundit-cloud_soundit-network
     ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.homeserver.conf:/etc/nginx/nginx.conf:ro
-      - E:\soundit-cloud\nginx\ssl:/etc/nginx/ssl:ro
-      - E:\soundit-cloud\nginx\logs:/var/log/nginx:rw
-      - E:\soundit-cloud\nginx\cache:/var/cache/nginx:rw
-      - E:\soundit-cloud\apps:/var/www/apps:ro
-      - E:\soundit-cloud\storage:/var/www/storage:ro
-      - E:\soundit-cloud\nginx\dashboard:/var/www/dashboard:ro
-      - E:\soundit-cloud\dricks-www:/var/www/dricks:ro
-      - E:\soundit-cloud\mobile-builds:/var/www/builds:ro
-    depends_on:
-      - app
-    networks:
-      - soundit-network
-
-volumes:
-  app_logs:
-    driver: local
-  app_uploads:
-    driver: local
+      - "80:8000"
+    # Run migrations before starting the server
+    command: >
+      sh -c "alembic upgrade head &&
+             python3 -m uvicorn main_production:app
+             --host 0.0.0.0 --port 8000 --workers 2"
+    restart: unless-stopped
 
 networks:
-  soundit-network:
+  soundit-cloud_soundit-network:
     external: true
-    name: soundit-cloud_soundit-network
