@@ -45,6 +45,9 @@ from api import subscriptions
 from api import bookings_artists
 from api import profiles
 from api import admin_stubs
+from api import deals
+from api import power_banks
+from api import restaurant_reservations
 
 # Get settings
 settings = get_settings()
@@ -217,6 +220,9 @@ app.include_router(subscriptions.router, prefix="/api/v1")
 app.include_router(bookings_artists.router, prefix="/api/v1")
 app.include_router(profiles.router, prefix="/api/v1")
 app.include_router(admin_stubs.router, prefix="/api/v1")
+app.include_router(deals.router, prefix="/api/v1")
+app.include_router(power_banks.router, prefix="/api/v1")
+app.include_router(restaurant_reservations.router, prefix="/api/v1")
 
 # SPA catch-all — serve static files from dist, fallback to index.html
 if os.path.isdir("app/dist"):

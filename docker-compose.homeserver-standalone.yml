@@ -1,0 +1,81 @@
+version: '3.8'
+
+# Standalone Home Server Deployment for Sound It Platform
+# Includes PostgreSQL, Redis, and the app — no external dependencies
+#
+# Usage:
+#   docker-compose -f docker-compose.homeserver-standalone.yml up -d --build
+#   docker-compose -f docker-compose.homeserver-standalone.yml logs -f app
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: soundit-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: soundit
+      POSTGRES_PASSWORD: Soundit@2020
+      POSTGRES_DB: soundit_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U soundit -d soundit_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - soundit-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: soundit-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - soundit-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.homeserver
+    container_name: soundit-backend-app
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://soundit:Soundit@2020@db:5432/soundit_db
+      REDIS_URL: redis://redis:6379/0
+      ENVIRONMENT: production
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
+      BASE_URL: ${BASE_URL:-http://192.168.2.14}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://192.168.2.14,http://localhost}
+    ports:
+      - "80:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - soundit-network
+    command: >
+      sh -c "alembic upgrade head &&
+             python3 -m uvicorn main_production:app
+             --host 0.0.0.0 --port 8000 --workers 2"
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  soundit-network:
+    driver: bridge

@@ -1,0 +1,14 @@
+# Pyrefly configuration
+project_includes = ["./"]
+project_excludes = [
+    ".venv",
+    "__pycache__",
+    "node_modules",
+    "static",
+    "uploads",
+    "app/node_modules",
+    "app/dist",
+    "app/ios",
+    "app/android",
+]
+python_version = "3.9"

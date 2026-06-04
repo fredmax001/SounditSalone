@@ -1,13 +1,10 @@
 # Sound It Platform - Home Server Dockerfile
-# Uses cached nginx:alpine base image to avoid Docker Hub pull issues
-# on servers with restricted registry access.
+# Robust Alpine-based image for home server deployment
 
-FROM nginx:alpine
+FROM python:3.11-alpine
 
-# Install Python, pip, and build dependencies
+# Install build dependencies and runtime packages
 RUN apk add --no-cache \
-    python3 \
-    py3-pip \
     gcc \
     musl-dev \
     libffi-dev \
@@ -18,16 +15,22 @@ RUN apk add --no-cache \
     libpng-dev \
     freetype-dev \
     curl \
+    libpq \
     && rm -rf /var/cache/apk/*
 
 WORKDIR /app
 
 # Copy and install Python dependencies
 COPY requirements.txt .
+
+# Try installing requirements; if psycopg2-binary fails on Alpine,
+# swap it for psycopg2 (source build) and retry
 RUN pip3 install --no-cache-dir -r requirements.txt || \
+    (sed -i 's/psycopg2-binary/psycopg2/g' requirements.txt && \
+     pip3 install --no-cache-dir -r requirements.txt) || \
     pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
-# Copy application code
+# Copy application code (includes built frontend in app/dist/)
 COPY . .
 
 # Create required directories
