@@ -10,22 +10,20 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development").lower()
     SECRET_KEY: str = os.getenv("SECRET_KEY", "")
     BASE_URL: str = os.getenv("BASE_URL", "http://localhost:8000")
-    
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # Validate SECRET_KEY in production
-        if not self.DEVELOPER_MODE:
-            if not self.SECRET_KEY:
-                raise ValueError(
-                    "SECRET_KEY environment variable is REQUIRED for production. "
-                    "Generate a secure key with: openssl rand -hex 32"
-                )
-            if len(self.SECRET_KEY) < 32:
-                import warnings
-                warnings.warn(
-                    "SECURITY WARNING: SECRET_KEY should be at least 32 characters for production security",
-                    RuntimeWarning
-                )
+        # Always require a non-empty SECRET_KEY so tokens/session cookies never use
+        # an empty or default signing key, even during local development.
+        if not self.SECRET_KEY:
+            raise ValueError(
+                "SECRET_KEY environment variable is REQUIRED. "
+                "Generate a secure key with: openssl rand -hex 32"
+            )
+        if len(self.SECRET_KEY) < 32 and not self.DEVELOPER_MODE:
+            raise ValueError(
+                "SECURITY ERROR: SECRET_KEY must be at least 32 characters for production."
+            )
     
     # Database
     DATABASE_URL: str = os.getenv("DATABASE_URL", "")
@@ -111,9 +109,9 @@ class Settings(BaseSettings):
     # File uploads
     MAX_UPLOAD_SIZE: int = int(os.getenv("MAX_UPLOAD_SIZE", "10485760"))  # 10MB
     
-    # Development Mode
-    DEVELOPER_MODE: bool = os.getenv("DEVELOPER_MODE", "true").lower() == "true"
-    
+    # Development Mode — default to False so production defaults are safe.
+    DEVELOPER_MODE: bool = os.getenv("DEVELOPER_MODE", "false").lower() == "true"
+
     # Default admin credentials (only used on first startup if no admin exists)
     DEFAULT_ADMIN_EMAIL: str = os.getenv("DEFAULT_ADMIN_EMAIL", "admin")
     DEFAULT_ADMIN_PASSWORD: str = os.getenv("DEFAULT_ADMIN_PASSWORD", "")

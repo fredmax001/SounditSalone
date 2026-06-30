@@ -1,7 +1,27 @@
 """Test all API endpoints."""
+import os
 import requests
+import sqlite3
 
 BASE_URL = "http://localhost:8000/api/v1"
+
+
+def _get_latest_otp_code(identifier: str) -> str | None:
+    """Fetch the latest unused OTP code from the local SQLite database."""
+    db_url = os.getenv("DATABASE_URL", "sqlite:///./soundit_local.db")
+    db_path = db_url.replace("sqlite:///./", "")
+    try:
+        conn = sqlite3.connect(db_path)
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT code FROM otp_codes WHERE identifier = ? AND is_used = 0 ORDER BY created_at DESC LIMIT 1",
+            (identifier,),
+        )
+        row = cur.fetchone()
+        conn.close()
+        return row[0] if row else None
+    except Exception:
+        return None
 
 
 class APITester:
@@ -35,12 +55,21 @@ class APITester:
         """Test auth endpoints."""
         print("\n🔐 Testing Auth Endpoints...")
         
-        # Register (may fail if user exists)
+        # Register requires a valid OTP. Request OTP first, then read the code
+        # from the local database and complete registration.
+        email = "test_new@example.com"
+        requests.post(f"{BASE_URL}/otp/email/send", json={
+            "email": email,
+            "purpose": "register"
+        })
+        otp_code = _get_latest_otp_code(email)
+
         resp = requests.post(f"{BASE_URL}/auth/register", json={
-            "email": "test_new@example.com",
+            "email": email,
             "password": "TestPass123!",
             "first_name": "Test",
-            "last_name": "User"
+            "last_name": "User",
+            "otp_code": otp_code or "000000"
         })
         self.log("POST", "/auth/register", resp.status_code, resp.status_code in [200, 201, 409])
         
@@ -88,11 +117,11 @@ class APITester:
             if data.get("items"):
                 event_id = data["items"][0]["id"]
                 resp = requests.get(f"{BASE_URL}/events/{event_id}")
-                self.log(f"GET", f"/events/{event_id}", resp.status_code, resp.status_code == 200)
+                self.log("GET", f"/events/{event_id}", resp.status_code, resp.status_code == 200)
                 
                 # Get tickets for event
                 resp = requests.get(f"{BASE_URL}/events/{event_id}/tickets")
-                self.log(f"GET", f"/events/{event_id}/tickets", resp.status_code, resp.status_code == 200)
+                self.log("GET", f"/events/{event_id}/tickets", resp.status_code, resp.status_code == 200)
         
         # Categories
         resp = requests.get(f"{BASE_URL}/events/categories")
@@ -102,7 +131,7 @@ class APITester:
         if self.token and data.get("items"):
             event_id = data["items"][0]["id"]
             resp = requests.post(f"{BASE_URL}/events/{event_id}/follow", headers=headers)
-            self.log(f"POST", f"/events/{event_id}/follow", resp.status_code, resp.status_code in [200, 201, 401, 409])
+            self.log("POST", f"/events/{event_id}/follow", resp.status_code, resp.status_code in [200, 201, 401, 409])
     
     def test_venues(self):
         """Test venue endpoints."""
@@ -118,11 +147,11 @@ class APITester:
             if data.get("items"):
                 venue_id = data["items"][0]["id"]
                 resp = requests.get(f"{BASE_URL}/venues/{venue_id}")
-                self.log(f"GET", f"/venues/{venue_id}", resp.status_code, resp.status_code == 200)
+                self.log("GET", f"/venues/{venue_id}", resp.status_code, resp.status_code == 200)
                 
                 # Get venue events
                 resp = requests.get(f"{BASE_URL}/venues/{venue_id}/events")
-                self.log(f"GET", f"/venues/{venue_id}/events", resp.status_code, resp.status_code == 200)
+                self.log("GET", f"/venues/{venue_id}/events", resp.status_code, resp.status_code == 200)
         
         # Categories
         resp = requests.get(f"{BASE_URL}/venues/categories")

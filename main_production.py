@@ -8,6 +8,9 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, FileResponse
 from starlette.middleware.sessions import SessionMiddleware
+from slowapi.middleware import SlowAPIMiddleware
+
+from api.limiter import limiter
 from contextlib import asynccontextmanager
 from datetime import datetime
 from sqlalchemy import text
@@ -143,6 +146,10 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "X-Requested-With", "X-Request-ID"],
     expose_headers=["X-Total-Count", "X-Request-ID"]
 )
+
+# Rate limiting middleware
+app.state.limiter = limiter
+app.add_middleware(SlowAPIMiddleware)
 
 # Session middleware for OAuth
 app.add_middleware(

@@ -3,6 +3,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.staticfiles import StaticFiles
+from slowapi.middleware import SlowAPIMiddleware
+
+from api.limiter import limiter
 from contextlib import asynccontextmanager
 from datetime import datetime
 
@@ -94,6 +97,10 @@ app.add_middleware(
     expose_headers=["X-Total-Count"]
 )
 
+# Rate limiting middleware
+app.state.limiter = limiter
+app.add_middleware(SlowAPIMiddleware)
+
 # Session middleware for Google OAuth
 app.add_middleware(
     SessionMiddleware, 
@@ -181,12 +188,12 @@ if __name__ == "__main__":
             local_ip = "127.0.0.1"
 
         port = 8000
-        print(f"\n🚀 Starting Sound It API Server")
-        print(f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        print("\n🚀 Starting Sound It API Server")
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
         print(f"   Local:       http://127.0.0.1:{port}")
         print(f"   Network:     http://{local_ip}:{port}")
         print(f"   CORS Origins: {ALLOWED_ORIGINS}")
-        print(f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
 
         uvicorn.run(app, host="0.0.0.0", port=port)
     except Exception as e:

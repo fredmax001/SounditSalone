@@ -2,9 +2,10 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
+import bcrypt
 from database import get_db
 from models import User, UserStatus
 from config import get_settings
@@ -13,7 +14,6 @@ settings = get_settings()
 
 
 # Password hashing
-import bcrypt
 # Monkey patch bcrypt for passlib compatibility
 if not hasattr(bcrypt, '__about__'):
     class About:
@@ -54,8 +54,17 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
         expire = datetime.now(timezone.utc) + expires_delta
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=settings.JWT_EXPIRATION_MINUTES)
-    
-    to_encode.update({"exp": expire, "type": "access"})
+    # Preserve caller-provided token type; default to access only when absent.
+    to_encode.setdefault("type", "access")
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
+    return encoded_jwt
+
+
+def create_password_reset_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(hours=1))
+    to_encode.update({"exp": expire, "type": "password_reset"})
     encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
     return encoded_jwt
 
@@ -81,19 +90,28 @@ def decode_token(token: str, token_type: Optional[str] = None) -> Optional[dict]
         return None
 
 
-async def get_current_user(
+def _get_token_from_request(
+    request: Request,
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+) -> Optional[str]:
+    """Read access token from Authorization header or HttpOnly cookie."""
+    if credentials is not None:
+        return credentials.credentials
+    return request.cookies.get("access_token")
+
+
+async def get_current_user(
+    token: Optional[str] = Depends(_get_token_from_request),
     db: Session = Depends(get_db)
 ) -> User:
-    if credentials is None:
+    if token is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication required",
             headers={"WWW-Authenticate": "Bearer"},
         )
-        
-    token = credentials.credentials
-    payload = decode_token(token)
+
+    payload = decode_token(token, token_type="access")
     
     if payload is None:
         raise HTTPException(
@@ -129,14 +147,13 @@ async def get_current_user(
 
 
 async def get_optional_user(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    token: Optional[str] = Depends(_get_token_from_request),
     db: Session = Depends(get_db)
 ) -> Optional[User]:
-    if credentials is None:
+    if token is None:
         return None
-        
-    token = credentials.credentials
-    payload = decode_token(token)
+
+    payload = decode_token(token, token_type="access")
     
     if payload is None:
         return None
