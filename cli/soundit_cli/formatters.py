@@ -5,7 +5,6 @@ import json
 import csv
 import sys
 from typing import List, Dict, Any
-from datetime import datetime
 
 
 def format_table(data: List[Dict[str, Any]], columns: List[str] = None) -> str:
@@ -56,7 +55,6 @@ def format_csv(data: List[Dict[str, Any]], columns: List[str] = None) -> str:
     if columns is None:
         columns = list(data[0].keys())
     
-    output = []
     writer = csv.DictWriter(sys.stdout, fieldnames=columns, extrasaction='ignore')
     
     # Capture output

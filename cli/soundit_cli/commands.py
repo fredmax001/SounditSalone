@@ -3,9 +3,8 @@ CLI Commands for Sound It
 """
 import click
 import sys
-from typing import Optional
 from .api_client import SoundItAPI, APIError
-from .config import ConfigManager, CLIConfig
+from .config import ConfigManager
 from .formatters import output, format_summary, format_user, format_event
 
 
@@ -46,7 +45,6 @@ def cli(ctx, api_url, output_format, debug):
 @cli.group()
 def auth():
     """Authentication commands"""
-    pass
 
 
 @auth.command()
@@ -108,7 +106,6 @@ def status():
 @cli.group()
 def users():
     """User management commands"""
-    pass
 
 
 @users.command(name="list")
@@ -196,7 +193,6 @@ def delete(api, user_id):
 @cli.group()
 def events():
     """Event management commands"""
-    pass
 
 
 @events.command(name="list")
@@ -241,7 +237,7 @@ def get(api, event_id, output_format):
 def approve(api, event_id):
     """Approve an event"""
     try:
-        event = api.approve_event(event_id)
+        api.approve_event(event_id)
         click.echo(click.style(f"✓ Event {event_id} approved", fg="green"))
     except APIError as e:
         click.echo(click.style(f"✗ Error: {e.message}", fg="red"))
@@ -255,7 +251,7 @@ def approve(api, event_id):
 def reject(api, event_id, reason):
     """Reject an event"""
     try:
-        event = api.reject_event(event_id, reason)
+        api.reject_event(event_id, reason)
         click.echo(click.style(f"✓ Event {event_id} rejected", fg="green"))
     except APIError as e:
         click.echo(click.style(f"✗ Error: {e.message}", fg="red"))
@@ -281,7 +277,6 @@ def delete(api, event_id):
 @cli.group()
 def venues():
     """Venue/Club management commands"""
-    pass
 
 
 @venues.command(name="list")
@@ -319,7 +314,6 @@ def get(api, venue_id):
 @cli.group()
 def admin():
     """Admin commands"""
-    pass
 
 
 @admin.command()
@@ -374,7 +368,7 @@ def list_verifications(api, status, output_format):
 def approve_verification(api, verification_id, notes):
     """Approve a verification request"""
     try:
-        result = api.approve_verification(verification_id, notes)
+        api.approve_verification(verification_id, notes)
         click.echo(click.style(f"✓ Verification {verification_id} approved", fg="green"))
     except APIError as e:
         click.echo(click.style(f"✗ Error: {e.message}", fg="red"))
@@ -388,7 +382,7 @@ def approve_verification(api, verification_id, notes):
 def reject_verification(api, verification_id, reason):
     """Reject a verification request"""
     try:
-        result = api.reject_verification(verification_id, reason)
+        api.reject_verification(verification_id, reason)
         click.echo(click.style(f"✓ Verification {verification_id} rejected", fg="green"))
     except APIError as e:
         click.echo(click.style(f"✗ Error: {e.message}", fg="red"))
@@ -400,7 +394,6 @@ def reject_verification(api, verification_id, reason):
 @cli.group()
 def orders():
     """Order management commands"""
-    pass
 
 
 @orders.command(name="list")
@@ -440,7 +433,7 @@ def get(api, order_id):
 def refund(api, order_id, reason):
     """Refund an order"""
     try:
-        result = api.refund_order(order_id, reason)
+        api.refund_order(order_id, reason)
         click.echo(click.style(f"✓ Order {order_id} refunded", fg="green"))
     except APIError as e:
         click.echo(click.style(f"✗ Error: {e.message}", fg="red"))

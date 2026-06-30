@@ -86,3 +86,4 @@ app/android/capacitor-cordova-android-plugins/
 /api/
 .playwright-mcp/
 .env.secure
+

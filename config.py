@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     # App
     APP_NAME: str = "Sound It API"
     DEBUG: bool = False
+    ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development").lower()
     SECRET_KEY: str = os.getenv("SECRET_KEY", "")
     BASE_URL: str = os.getenv("BASE_URL", "http://localhost:8000")
     
@@ -28,14 +29,22 @@ class Settings(BaseSettings):
     
     # Database
     DATABASE_URL: str = os.getenv("DATABASE_URL", "")
+    DB_POOL_SIZE: int = int(os.getenv("DB_POOL_SIZE", "10"))
+    DB_MAX_OVERFLOW: int = int(os.getenv("DB_MAX_OVERFLOW", "20"))
+    DB_POOL_TIMEOUT: int = int(os.getenv("DB_POOL_TIMEOUT", "30"))
+    DB_POOL_RECYCLE: int = int(os.getenv("DB_POOL_RECYCLE", "3600"))
     
     # Redis
-    REDIS_URL: str = "redis://localhost:6379/0"
+    REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+    REDIS_ENABLED: bool = os.getenv("REDIS_ENABLED", "false").lower() == "true"
     
     # JWT
     JWT_SECRET: str = os.getenv("JWT_SECRET") or os.getenv("SECRET_KEY", "")
     JWT_ALGORITHM: str = "HS256"
-    JWT_EXPIRATION_MINUTES: int = int(os.getenv("JWT_EXPIRATION_MINUTES", "15"))
+    JWT_EXPIRATION_HOURS: int = int(os.getenv("JWT_EXPIRATION_HOURS", "24"))
+    JWT_EXPIRATION_MINUTES: int = int(
+        os.getenv("JWT_EXPIRATION_MINUTES", str(JWT_EXPIRATION_HOURS * 60))
+    )
     JWT_REFRESH_EXPIRATION_DAYS: int = int(os.getenv("JWT_REFRESH_EXPIRATION_DAYS", "7"))
     
     # OTP
@@ -49,7 +58,14 @@ class Settings(BaseSettings):
     
     # SendGrid (Email)
     SENDGRID_API_KEY: str = ""
-    SENDGRID_FROM_EMAIL: str = ""  # e.g., noreply@soundit.com
+    SENDGRID_FROM_EMAIL: str = ""  # e.g., noreply@sounditentsl.com
+    
+    # Hostinger SMTP (Email) - Primary email delivery
+    SMTP_HOST: str = "smtp.hostinger.com"
+    SMTP_PORT: int = 465
+    SMTP_USER: str = ""  # e.g., otp@sounditentsl.com
+    SMTP_PASS: str = ""  # Email password
+    SMTP_FROM: str = ""  # e.g., "Sound It Salone <otp@sounditentsl.com>"
     
     # Stripe
     STRIPE_SECRET_KEY: str = ""
@@ -86,9 +102,26 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_SECRET: str = ""
     GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/google/callback"
     
-    # Development Mode
-    DEVELOPER_MODE: bool = True
+    # Frontend URL (for OAuth callbacks)
+    FRONTEND_BASE_URL: str = os.getenv("FRONTEND_BASE_URL", "http://localhost:5173")
     
+    # Logging
+    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
+    
+    # File uploads
+    MAX_UPLOAD_SIZE: int = int(os.getenv("MAX_UPLOAD_SIZE", "10485760"))  # 10MB
+    
+    # Development Mode
+    DEVELOPER_MODE: bool = os.getenv("DEVELOPER_MODE", "true").lower() == "true"
+    
+    # Default admin credentials (only used on first startup if no admin exists)
+    DEFAULT_ADMIN_EMAIL: str = os.getenv("DEFAULT_ADMIN_EMAIL", "admin")
+    DEFAULT_ADMIN_PASSWORD: str = os.getenv("DEFAULT_ADMIN_PASSWORD", "")
+    
+    # Kimi AI Settings
+    KIMI_API_KEY: str = ""
+    KIMI_BASE_URL: str = "https://api.kimi.com/coding/v1"
+    KIMI_AGENT_API_ID: str = ""
     
     class Config:
         env_file = ".env"

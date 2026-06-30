@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse, FileResponse
 from starlette.middleware.sessions import SessionMiddleware
 from contextlib import asynccontextmanager
 from datetime import datetime
+from sqlalchemy import text
 import os
 import sys
 import logging
@@ -34,6 +35,7 @@ from api import cart
 from api import city_guide
 from api import organizer
 from api import venue_dashboard
+from api import restaurant_dashboard
 from api import user_dashboard
 from api import tickets
 from api import orange_money
@@ -48,6 +50,8 @@ from api import admin_stubs
 from api import deals
 from api import power_banks
 from api import restaurant_reservations
+from api import food_orders
+from api import ai_menu_builder
 
 # Get settings
 settings = get_settings()
@@ -223,6 +227,9 @@ app.include_router(admin_stubs.router, prefix="/api/v1")
 app.include_router(deals.router, prefix="/api/v1")
 app.include_router(power_banks.router, prefix="/api/v1")
 app.include_router(restaurant_reservations.router, prefix="/api/v1")
+app.include_router(restaurant_dashboard.router, prefix="/api/v1")
+app.include_router(food_orders.router, prefix="/api/v1")
+app.include_router(ai_menu_builder.router, prefix="/api/v1")
 
 # SPA catch-all — serve static files from dist, fallback to index.html
 if os.path.isdir("app/dist"):
@@ -267,15 +274,19 @@ def api_health_check():
     import psutil
     
     # Check database
+    db = None
     try:
         db = next(get_db())
-        db.execute("SELECT 1")
+        db.execute(text("SELECT 1"))
         db_status = "connected"
         db_healthy = True
     except Exception as e:
         db_status = f"error: {str(e)}"
         db_healthy = False
         logger.error(f"Health check database error: {e}")
+    finally:
+        if db is not None:
+            db.close()
     
     # Check system resources
     try:
@@ -286,7 +297,7 @@ def api_health_check():
         disk_status = "healthy" if disk.percent < 90 else "warning"
         
         system_healthy = memory_status == "healthy" and disk_status == "healthy"
-    except Exception as e:
+    except Exception:
         memory_status = "unknown"
         disk_status = "unknown"
         system_healthy = True  # Don't fail if we can't check
@@ -315,7 +326,6 @@ def api_health_check():
 def metrics():
     """Basic metrics endpoint for monitoring"""
     import psutil
-    import os
     
     try:
         # System metrics
@@ -324,8 +334,8 @@ def metrics():
         cpu_percent = psutil.cpu_percent(interval=0.1)
         
         # Get database stats
+        db = None
         try:
-            from sqlalchemy import func
             db = next(get_db())
             
             from models import User, Event, Order, Ticket
@@ -344,6 +354,9 @@ def metrics():
         except Exception as e:
             logger.error(f"Failed to get DB stats: {e}")
             db_stats = {"error": "Failed to retrieve"}
+        finally:
+            if db is not None:
+                db.close()
         
         return {
             "timestamp": datetime.utcnow().isoformat(),

@@ -1,7 +1,6 @@
 import os
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.gzip import GZipMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
@@ -25,6 +24,7 @@ from api import cart
 from api import city_guide
 from api import organizer
 from api import venue_dashboard
+from api import restaurant_dashboard
 from api import user_dashboard
 from api import tickets
 from api import orange_money
@@ -38,6 +38,8 @@ from api import admin_stubs
 from api import deals
 from api import power_banks
 from api import restaurant_reservations
+from api import food_orders
+from api import ai_menu_builder
 
 settings = get_settings()
 
@@ -120,6 +122,7 @@ app.include_router(cart.router, prefix="/api/v1")
 app.include_router(city_guide.router, prefix="/api/v1")
 app.include_router(organizer.router, prefix="/api/v1")
 app.include_router(venue_dashboard.router, prefix="/api/v1")
+app.include_router(restaurant_dashboard.router, prefix="/api/v1")
 
 app.include_router(user_dashboard.router, prefix="/api/v1")
 app.include_router(tickets.router, prefix="/api/v1")
@@ -134,6 +137,8 @@ app.include_router(admin_stubs.router, prefix="/api/v1")
 app.include_router(deals.router, prefix="/api/v1")
 app.include_router(power_banks.router, prefix="/api/v1")
 app.include_router(restaurant_reservations.router, prefix="/api/v1")
+app.include_router(food_orders.router, prefix="/api/v1")
+app.include_router(ai_menu_builder.router, prefix="/api/v1")
 
 
 @app.get("/")

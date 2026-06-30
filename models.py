@@ -9,6 +9,7 @@ class UserRole(str, enum.Enum):
     USER = "user"
     ORGANIZER = "organizer"
     VENUE = "venue"
+    RESTAURANT = "restaurant"
     SPORT = "sport"
     ADMIN = "admin"
     SUPER_ADMIN = "super_admin"
@@ -115,6 +116,7 @@ class User(Base):
     # Social auth
     google_id = Column(String(255), unique=True, nullable=True)
     apple_id = Column(String(255), unique=True, nullable=True)
+    auth_provider = Column(String(20), default="email")  # email, google, apple
     
     # Profile
     first_name = Column(String(100), nullable=True)
@@ -150,6 +152,7 @@ class User(Base):
     tickets = relationship("Ticket", back_populates="user", foreign_keys="Ticket.user_id")
     organizer_profile = relationship("OrganizerProfile", back_populates="user", uselist=False)
     venue_profile = relationship("VenueProfile", back_populates="user", uselist=False)
+    restaurant_profile = relationship("RestaurantProfile", back_populates="user", uselist=False)
     vendor_profile = relationship("VendorProfile", back_populates="user", uselist=False)
     business_profile = relationship("BusinessProfile", back_populates="user", uselist=False)
     verification_requests = relationship("VerificationRequest", back_populates="user", foreign_keys="VerificationRequest.user_id")
@@ -251,6 +254,74 @@ class VenueProfile(Base):
     subscriptions = relationship("VenueSubscription", back_populates="venue")
     power_bank_stations = relationship("PowerBankStation", back_populates="venue")
 
+
+class RestaurantProfile(Base):
+    __tablename__ = "restaurant_profiles"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True)
+    
+    # Restaurant Info
+    restaurant_name = Column(String(200), nullable=False)
+    description = Column(Text, nullable=True)
+    cuisine_type = Column(String(100), nullable=True)
+    
+    # Location
+    city = Column(Enum(City), nullable=False)
+    address = Column(String(500), nullable=False)
+    landmark = Column(String(255), nullable=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    
+    # Contact
+    phone = Column(String(20), nullable=True)
+    whatsapp = Column(String(20), nullable=True)
+    email = Column(String(255), nullable=True)
+    instagram = Column(String(255), nullable=True)
+    website = Column(String(500), nullable=True)
+    
+    # Media
+    logo_url = Column(String(500), nullable=True)
+    cover_image = Column(String(500), nullable=True)
+    photos = Column(JSON, nullable=True)
+    
+    # Hours & Operations
+    opening_hours = Column(JSON, nullable=True, default=dict)  # {monday: {open: "09:00", close: "22:00"}, ...}
+    
+    # Service Options
+    delivery_available = Column(Boolean, default=False)
+    takeout_available = Column(Boolean, default=False)
+    dine_in_available = Column(Boolean, default=True)
+    delivery_radius_km = Column(Float, nullable=True)
+    delivery_fee = Column(Float, nullable=True)
+    
+    # Pricing
+    price_range = Column(String(10), nullable=True)  # $, $$, $$$, $$$$
+    
+    # Verification
+    is_verified = Column(Boolean, default=False)
+    business_registration_number = Column(String(100), nullable=True)
+    business_certificate_url = Column(String(500), nullable=True)
+    owner_id_url = Column(String(500), nullable=True)
+    
+    # Status
+    status = Column(String(50), default="pending")
+    
+    # Stats
+    total_revenue = Column(Float, default=0.0)
+    rating = Column(Float, default=0.0)
+    reviews_count = Column(Integer, default=0)
+    
+    # Dashboard Configurations
+    menu_items = Column(JSON, nullable=True, default=list)
+    table_configs = Column(JSON, nullable=True, default=list)
+    
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Relationships
+    user = relationship("User", back_populates="restaurant_profile")
 
 
 class VendorProfile(Base):
@@ -1046,6 +1117,7 @@ class RecapLike(Base):
     __tablename__ = "recap_likes"
     __table_args__ = (
         UniqueConstraint('recap_id', 'user_id', name='uq_recap_like_user'),
+        {'sqlite_autoincrement': True},
     )
     
     id = Column(Integer, primary_key=True, index=True)
@@ -1104,10 +1176,6 @@ class Crew(Base):
     # Relationships
     organizer = relationship("OrganizerProfile")
 
-# Unique constraint override for RecapLike
-RecapLike.__table_args__ = (
-    {'sqlite_autoincrement': True},
-)
 
 
 
@@ -1183,6 +1251,83 @@ class RestaurantReservationStatus(str, enum.Enum):
     COMPLETED = "completed"
     CANCELLED = "cancelled"
     NO_SHOW = "no_show"
+
+
+class FoodOrderStatus(str, enum.Enum):
+    PENDING = "pending"
+    PREPARING = "preparing"
+    READY = "ready"
+    DELIVERED = "delivered"
+    CANCELLED = "cancelled"
+
+
+class FoodOrder(Base):
+    """Food orders for dine-in, pickup, or delivery."""
+    __tablename__ = "food_orders"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    food_spot_id = Column(Integer, ForeignKey("food_spots.id"), nullable=False, index=True)
+    
+    # Order info
+    order_number = Column(String(50), unique=True, nullable=False)
+    total_amount = Column(Float, nullable=False)
+    currency = Column(String(3), default="SLE")
+    
+    # Order type & delivery
+    order_type = Column(String(20), default="dine_in")  # dine_in, pickup, delivery
+    delivery_address = Column(String(500), nullable=True)
+    landmark = Column(String(255), nullable=True)
+    contact_phone = Column(String(20), nullable=True)
+    
+    # Status
+    status = Column(Enum(FoodOrderStatus), default=FoodOrderStatus.PENDING)
+    
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Relationships
+    user = relationship("User")
+    food_spot = relationship("FoodSpot")
+    items = relationship("FoodOrderItem", back_populates="order", cascade="all, delete-orphan")
+
+
+class FoodOrderItem(Base):
+    """Individual items within a food order."""
+    __tablename__ = "food_order_items"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    order_id = Column(Integer, ForeignKey("food_orders.id"), index=True)
+    
+    menu_item_id = Column(String(100), nullable=True)
+    menu_item_name = Column(String(200), nullable=False)
+    quantity = Column(Integer, nullable=False)
+    price = Column(Float, nullable=False)
+    
+    order = relationship("FoodOrder", back_populates="items")
+
+
+class Review(Base):
+    """Customer reviews for clubs and food spots."""
+    __tablename__ = "reviews"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    
+    # Review target (one of these should be set)
+    club_id = Column(Integer, ForeignKey("clubs.id"), nullable=True, index=True)
+    food_spot_id = Column(Integer, ForeignKey("food_spots.id"), nullable=True, index=True)
+    
+    rating = Column(Integer, nullable=False)  # 1-5
+    comment = Column(Text, nullable=True)
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    user = relationship("User")
+    club = relationship("Club")
+    food_spot = relationship("FoodSpot")
 
 
 class RestaurantReservation(Base):
@@ -1283,3 +1428,45 @@ class MonimeBankProvider(Base):
     active = Column(Boolean, default=True)
     metadata_json = Column(JSON, nullable=True)
     cached_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class AIMenuJobStatus(str, enum.Enum):
+    PENDING = "pending"
+    PROCESSING = "processing"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
+class AIMenuJob(Base):
+    """Tracks AI menu import jobs (upload → processing → review → publish)."""
+    __tablename__ = "ai_menu_jobs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    venue_profile_id = Column(Integer, ForeignKey("venue_profiles.id"), nullable=True, index=True)
+    restaurant_profile_id = Column(Integer, ForeignKey("restaurant_profiles.id"), nullable=True, index=True)
+
+    # Job tracking
+    status = Column(Enum(AIMenuJobStatus), default=AIMenuJobStatus.PENDING)
+    job_type = Column(String(50), default="menu_import")  # menu_import, flyer_extraction
+
+    # File info
+    original_filename = Column(String(255), nullable=True)
+    file_path = Column(String(500), nullable=True)
+
+    # AI results
+    raw_ocr_text = Column(Text, nullable=True)
+    structured_menu = Column(JSON, nullable=True)  # {categories: [...], items: [...]}
+    ai_confidence_score = Column(Float, nullable=True)
+    error_message = Column(Text, nullable=True)
+
+    # Processing timestamps
+    processing_started_at = Column(DateTime(timezone=True), nullable=True)
+    processing_completed_at = Column(DateTime(timezone=True), nullable=True)
+
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    user = relationship("User")

@@ -18,8 +18,8 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
-if ! command -v docker-compose &> /dev/null; then
-    echo "❌ Docker Compose not found. Installing..."
+if ! docker compose version &> /dev/null; then
+    echo "❌ Docker Compose v2 not found. Installing..."
     sudo apt-get update && sudo apt-get install -y docker-compose-plugin || true
 fi
 
@@ -39,30 +39,30 @@ cd "$PROJECT_DIR"
 
 # 4. Pull/build and start
 echo "🔨 Building and starting services..."
-docker-compose -f "$COMPOSE_FILE" down 2>/dev/null || true
-docker-compose -f "$COMPOSE_FILE" up -d --build
+docker compose -f "$COMPOSE_FILE" down 2>/dev/null || true
+docker compose -f "$COMPOSE_FILE" up -d --build
 
 # 5. Wait for DB and run migrations
 echo "⏳ Waiting for database..."
 sleep 8
 
 echo "🗃️  Running migrations..."
-docker-compose -f "$COMPOSE_FILE" exec -T app alembic upgrade head || echo "⚠️  Migration warning (may already be up to date)"
+docker compose -f "$COMPOSE_FILE" exec -T app alembic upgrade head
 
 # 6. Health check
 echo "🏥 Health check..."
 sleep 2
-if docker-compose -f "$COMPOSE_FILE" exec -T app curl -sf http://localhost:8000/health > /dev/null 2>&1; then
+if docker compose -f "$COMPOSE_FILE" exec -T app curl -sf http://localhost:8000/health > /dev/null 2>&1; then
     echo "✅ App is healthy!"
 else
     echo "⚠️  Health check didn't pass immediately — checking logs..."
-    docker-compose -f "$COMPOSE_FILE" logs --tail=30 app
+    docker compose -f "$COMPOSE_FILE" logs --tail=30 app
 fi
 
 echo ""
 echo "🎉 Deployment complete!"
 echo "📊 Services:"
-docker-compose -f "$COMPOSE_FILE" ps
+docker compose -f "$COMPOSE_FILE" ps
 echo ""
 echo "🌐 Access the app at: http://192.168.2.14"
-echo "📜 View logs: docker-compose -f $COMPOSE_FILE logs -f app"
+echo "📜 View logs: docker compose -f $COMPOSE_FILE logs -f app"

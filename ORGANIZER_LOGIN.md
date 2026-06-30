@@ -10,8 +10,8 @@ POST /api/v1/auth/login
 Content-Type: application/json
 
 {
-  "email": "organizer@soundit.test",
-  "password": "Test@1234"
+  "email": "organizer@example.com",
+  "password": "YourStrongPassword"
 }
 ```
 
@@ -22,10 +22,10 @@ Content-Type: application/json
   "refresh_token": "eyJhbGciOiJIUzI1NiIs...",
   "token_type": "bearer",
   "user": {
-    "id": 47,
-    "email": "organizer@soundit.test",
-    "first_name": "DJ",
-    "last_name": "FredMax",
+    "id": 1,
+    "email": "organizer@example.com",
+    "first_name": "John",
+    "last_name": "Doe",
     "role": "organizer",
     "status": "active"
   }
@@ -38,23 +38,6 @@ After successful login, the frontend checks `user.role` and redirects:
 - `venue` → `/dashboard/venue`
 - `admin` / `super_admin` → `/admin/dashboard`
 - `user` → `/`
-
----
-
-## Demo/Test Credentials
-
-Run the seed script to create these accounts:
-```bash
-python scripts/seed_demo_organizers.py
-```
-
-| Email | Password | Role | Status | Notes |
-|-------|----------|------|--------|-------|
-| `organizer@soundit.test` | `Test@1234` | organizer | active | Verified org "Sound It Events" + 2 sample events |
-| `organizer2@soundit.test` | `Test@1234` | organizer | active | Unverified org "Weekend Vibes SL" + 1 event |
-| `venue@soundit.test` | `Test@1234` | venue | active | "Paddy's Beach Bar" |
-| `admin@soundit.test` | `Admin@1234` | admin | active | Platform admin |
-| `superadmin@soundit.test` | `Super@1234` | super_admin | active | Super admin |
 
 ---
 

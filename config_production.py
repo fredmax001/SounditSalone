@@ -9,10 +9,9 @@ Hardened production settings with:
 
 import os
 import secrets
-from typing import List, Optional
+from typing import List
 from pydantic_settings import BaseSettings
 from functools import lru_cache
-from pydantic import field_validator
 
 # Load environment variables from .env.production file only in production
 try:
@@ -145,6 +144,7 @@ class ProductionSettings(BaseSettings):
     GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
     GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
     GOOGLE_REDIRECT_URI: str = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8000/api/v1/auth/google/callback")
+    FRONTEND_BASE_URL: str = os.getenv("FRONTEND_BASE_URL", "http://localhost:5173")
     
     # ============================================
     # Security Settings
@@ -194,7 +194,7 @@ class ProductionSettings(BaseSettings):
     TIMEZONE: str = os.getenv("TIMEZONE", "Africa/Freetown")
     
     class Config:
-        env_file = ".env.production"
+        env_file = ".env"
         env_file_encoding = "utf-8"
         extra = "ignore"
         case_sensitive = False

@@ -51,13 +51,13 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Performance monitoring
 @event.listens_for(engine, "before_cursor_execute")
-def before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+def before_cursor_execute(_conn, _cursor, _statement, _parameters, context, _executemany):
     """Log slow queries"""
     context._query_start_time = __import__('time').time()
 
 
 @event.listens_for(engine, "after_cursor_execute")
-def after_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+def after_cursor_execute(_conn, _cursor, statement, _parameters, context, _executemany):
     """Log query execution time"""
     total_time = __import__('time').time() - context._query_start_time
     if total_time > 1.0:  # Log queries taking more than 1 second
@@ -80,7 +80,7 @@ def get_db_context():
     try:
         yield db
         db.commit()
-    except Exception as e:
+    except Exception:
         db.rollback()
         raise
     finally:
@@ -201,16 +201,6 @@ def create_performance_indexes():
 def init_db():
     """Initialize database tables and indexes"""
     # Import all models to ensure they're registered with Base
-    from models import (
-        User, OTPCode, Event, Club, FoodSpot, Order, OrderItem,
-        ArtistProfile, DJMix, OrganizerProfile, BusinessProfile,
-        BookingRequest, BookingMessage, ArtistReview, ArtistAvailability, ArtistTrack,
-        VerificationRequest, Venue,
-        EventArtist, TicketTier, Ticket,
-        ArtistFollow, EventFollow, VendorFollow, OrganizerFollow,
-        Notification, VendorProfile, Product, EventVendor,
-        SearchLog, FeaturedItem, PaymentVerification
-    )
     
     # Create all tables
     Base.metadata.create_all(bind=engine)

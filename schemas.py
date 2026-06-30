@@ -508,7 +508,7 @@ class TicketResponse(BaseModel):
     event_id: Optional[int] = None
     
     @classmethod
-    def from_orm(cls, obj):
+    def from_orm(cls, obj):  # noqa
         result = super().from_orm(obj)
         # Compute event_id from the event relationship
         if obj.ticket_tier and obj.ticket_tier.event:

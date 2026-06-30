@@ -46,7 +46,14 @@ check_docker() {
         exit 1
     fi
     
-    if ! command -v docker-compose &> /dev/null; then
+    # Check for docker compose (v2) or docker-compose (v1 legacy)
+    if ! command -v docker &> /dev/null; then
+        log_error "Docker is not installed"
+        exit 1
+    fi
+    
+    if ! docker compose version &> /dev/null && ! command -v docker-compose &> /dev/null; then
+        log_error "Docker Compose is not installed"
         log_error "Docker Compose is not installed"
         exit 1
     fi
@@ -67,14 +74,20 @@ create_directories() {
 deploy() {
     log_info "Building and starting services..."
     
+    # Use docker compose v2 if available, fallback to docker-compose
+    COMPOSE="docker compose"
+    if ! docker compose version &> /dev/null; then
+        COMPOSE="docker-compose"
+    fi
+    
     # Pull latest images
-    docker-compose -f $COMPOSE_FILE pull
+    $COMPOSE -f $COMPOSE_FILE pull
     
     # Build application
-    docker-compose -f $COMPOSE_FILE build --no-cache
+    $COMPOSE -f $COMPOSE_FILE build --no-cache
     
     # Start services
-    docker-compose -f $COMPOSE_FILE up -d
+    $COMPOSE -f $COMPOSE_FILE up -d
     
     log_info "Services started successfully"
 }
@@ -87,7 +100,7 @@ run_migrations() {
     sleep 5
     
     # Run migrations
-    docker-compose -f $COMPOSE_FILE exec -T app alembic upgrade head
+    $COMPOSE -f $COMPOSE_FILE exec -T app alembic upgrade head
     
     log_info "Migrations completed"
 }
@@ -100,7 +113,7 @@ health_check() {
     RETRY_COUNT=0
     
     while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-        if docker-compose -f $COMPOSE_FILE exec -T app curl -sf http://localhost:8000/health > /dev/null; then
+        if $COMPOSE -f $COMPOSE_FILE exec -T app curl -sf http://localhost:8000/health > /dev/null; then
             log_info "Health check passed!"
             return 0
         fi
@@ -118,16 +131,16 @@ health_check() {
 show_status() {
     log_info "Deployment Status:"
     echo ""
-    docker-compose -f $COMPOSE_FILE ps
+    $COMPOSE -f $COMPOSE_FILE ps
     echo ""
     log_info "Logs:"
-    docker-compose -f $COMPOSE_FILE logs --tail=20 app
+    $COMPOSE -f $COMPOSE_FILE logs --tail=20 app
 }
 
 # Rollback function
 rollback() {
     log_warn "Rolling back deployment..."
-    docker-compose -f $COMPOSE_FILE down
+    $COMPOSE -f $COMPOSE_FILE down
     log_info "Rollback completed"
 }
 
@@ -144,7 +157,7 @@ main() {
     if [ -f "backups/previous-deployment.tar" ]; then
         mv backups/previous-deployment.tar backups/previous-deployment-$(date +%Y%m%d-%H%M%S).tar
     fi
-    docker-compose -f $COMPOSE_FILE down || true
+    $COMPOSE -f $COMPOSE_FILE down || true
     
     # Deploy
     if deploy; then

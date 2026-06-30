@@ -10,17 +10,6 @@ from alembic import context
 
 # Import models for autogenerate support
 from database import Base
-from models import (
-    User, OTPCode, Event, Club, FoodSpot, Order, 
-    OrganizerProfile, BusinessProfile,
-    VerificationRequest, Venue,
-    TicketTier, Ticket, OrderItem,
-    ArtistFollow, EventFollow, Notification,
-    PaymentVerification, VendorProfile,
-    VendorFollow, OrganizerFollow, SearchLog, FeaturedItem,
-    Recap, RecapLike, Sport, Deal, Crew,
-    
-)
 
 # this is the Alembic Config object
 config = context.config

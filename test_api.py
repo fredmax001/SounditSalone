@@ -1,5 +1,4 @@
 import urllib.request
-import json
 
 try:
     req = urllib.request.Request("http://localhost:8000/api/v1/admin/users?role=user")

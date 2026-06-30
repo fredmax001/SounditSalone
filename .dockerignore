@@ -19,6 +19,7 @@ venv
 
 # Node
 node_modules
+app/node_modules
 npm-debug.log
 yarn-error.log
 
@@ -51,7 +52,6 @@ tests/
 htmlcov/
 
 # CI/CD
-deploy/
 scripts/
 
 # Documentation
@@ -59,6 +59,12 @@ README.md
 DEPLOYMENT.md
 MOBILE.md
 
-# Alembic (run migrations separately)
-alembic/
-alembic.ini
+# Frontend source files are not needed in backend image; keep only the production build
+app/src/
+app/public/
+app/scripts/
+app/ios/
+app/android/
+app/dist/assets/*.map
+
+# Keep alembic/ and alembic.ini in the image so migrations can run inside containers

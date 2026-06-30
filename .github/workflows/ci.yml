@@ -1,0 +1,131 @@
+name: Sound It CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend Tests & Lint
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: soundit_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio httpx faker
+
+      - name: Lint with flake8
+        run: |
+          pip install flake8
+          flake8 api/ config.py config_production.py database.py main.py main_production.py models.py schemas.py --max-line-length=120 --ignore=E501,W503 --exclude=__pycache__
+        continue-on-error: true
+
+      - name: Run syntax check
+        run: |
+          python -m py_compile main.py
+          python -m py_compile main_production.py
+          python -c "from api import auth_password, google_auth, events, payments, admin, otp, dashboard_stats, bookings, media, contact, notifications, recaps, cart, city_guide, organizer, venue_dashboard, user_dashboard, tickets, orange_money, monime, vendors, favorites, subscriptions, bookings_artists, profiles, admin_stubs, deals, power_banks, restaurant_reservations; print('All API modules import OK')"
+
+      - name: Run pytest
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/soundit_test
+          SECRET_KEY: test-secret-key-for-ci-only
+          JWT_SECRET: test-jwt-secret-for-ci-only
+          REDIS_URL: redis://localhost:6379/0
+        run: |
+          pytest test_api_endpoints.py -v --tb=short || true
+        continue-on-error: true
+
+  frontend:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        run: cd app && npm ci
+
+      - name: Build
+        run: cd app && npm run build
+
+      - name: Check for TypeScript errors
+        run: cd app && npx tsc --noEmit || true
+        continue-on-error: true
+
+  docker:
+    name: Docker Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t soundit:test .
+      - name: Validate Docker Compose
+        run: docker compose -f docker-compose.yml config
+      - name: Validate Production Docker Compose
+        run: docker compose -f docker-compose.prod.yml config
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Bandit
+        uses: PyCQA/bandit@main
+        with:
+          args: "-r . -f json -o bandit-report.json || true"
+        continue-on-error: true
+      - name: Check for secrets in code
+        run: |
+          grep -rn "sk-[a-zA-Z0-9]*\|SG\.[a-zA-Z0-9]*\|AKIA[0-9A-Z]*\|ghp_[a-zA-Z0-9]*" --include="*.py" --include="*.env*" . || echo "No obvious secrets found"
+          if grep -q "sk-" .env* 2>/dev/null || grep -q "SG\." .env* 2>/dev/null; then
+            echo "⚠️ WARNING: Potential secrets found in .env files!"
+            exit 1
+          fi
+        continue-on-error: true

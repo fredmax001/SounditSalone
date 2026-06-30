@@ -1,7 +1,6 @@
 """Simple load testing script."""
 import time
 import requests
-import concurrent.futures
 import statistics
 
 BASE_URL = "http://localhost:8000/api/v1"

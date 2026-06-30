@@ -9,21 +9,20 @@ Production monitoring with:
 """
 
 import logging
-import json
 import time
 import traceback
 from datetime import datetime, timedelta
 from functools import wraps
 from typing import Dict, List, Optional, Any, Callable
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from collections import defaultdict
 
-from fastapi import Request, HTTPException
+from fastapi import Request
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
-from database_production import get_db_context, check_database_health
-from config_production import get_settings
+from database import get_db_context, check_database_health
+from config import get_settings
 
 settings = get_settings()
 logger = logging.getLogger(__name__)
@@ -337,14 +336,14 @@ class AdminDashboard:
     def get_realtime_stats(db: Session) -> Dict:
         """Get real-time platform statistics"""
         from models import (
-            User, UserRole, UserStatus, Event, Order, 
-            PaymentStatus, Ticket, BookingRequest, BookingStatus
+            User, UserRole, UserStatus, Event, Order,
+            PaymentStatus, Ticket, Booking, BookingStatus
         )
-        
+
         now = datetime.utcnow()
         last_24h = now - timedelta(hours=24)
         last_7d = now - timedelta(days=7)
-        
+
         # User stats
         user_stats = {
             "total": db.query(User).count(),
@@ -356,7 +355,7 @@ class AdminDashboard:
                 for role in UserRole
             }
         }
-        
+
         # Revenue stats
         revenue_stats = {
             "total_revenue": db.query(func.sum(Order.total_amount)).filter(
@@ -374,7 +373,7 @@ class AdminDashboard:
                 Order.payment_status == PaymentStatus.PENDING
             ).count(),
         }
-        
+
         # Event stats
         event_stats = {
             "total": db.query(Event).count(),
@@ -385,25 +384,25 @@ class AdminDashboard:
             ).count(),
             "tickets_sold": db.query(func.sum(Event.tickets_sold)).scalar() or 0,
         }
-        
+
         # Ticket stats
         ticket_stats = {
             "total": db.query(Ticket).count(),
-            "used": db.query(Ticket).filter(Ticket.is_used == True).count(),
+            "used": db.query(Ticket).filter(Ticket.is_used.is_(True)).count(),
             "scanned_24h": db.query(Ticket).filter(
-                Ticket.is_used == True,
+                Ticket.is_used.is_(True),
                 Ticket.used_at >= last_24h
             ).count(),
         }
-        
+
         # Booking stats
         booking_stats = {
-            "total": db.query(BookingRequest).count(),
-            "pending": db.query(BookingRequest).filter(
-                BookingRequest.status == BookingStatus.PENDING
+            "total": db.query(Booking).count(),
+            "pending": db.query(Booking).filter(
+                Booking.status == BookingStatus.PENDING
             ).count(),
-            "accepted": db.query(BookingRequest).filter(
-                BookingRequest.status == BookingStatus.ACCEPTED
+            "accepted": db.query(Booking).filter(
+                Booking.status == BookingStatus.ACCEPTED
             ).count(),
         }
         
@@ -419,7 +418,7 @@ class AdminDashboard:
     @staticmethod
     def get_recent_activities(db: Session, limit: int = 20) -> List[Dict]:
         """Get recent platform activities"""
-        from models import User, Order, Event, BookingRequest
+        from models import User, Order
         
         activities = []
         
@@ -453,10 +452,10 @@ class AdminDashboard:
     @staticmethod
     def get_pending_actions(db: Session) -> List[Dict]:
         """Get pending admin actions"""
-        from models import Event, EventStatus, BookingRequest, BookingStatus, VerificationRequest, VerificationStatus
-        
+        from models import Event, EventStatus, Booking, BookingStatus, VerificationRequest, VerificationStatus
+
         actions = []
-        
+
         # Pending event approvals
         pending_events = db.query(Event).filter(Event.status == EventStatus.PENDING).all()
         for event in pending_events:
@@ -470,21 +469,21 @@ class AdminDashboard:
                 "entity_type": "event",
                 "priority": "medium"
             })
-        
+
         # Pending booking requests
-        pending_bookings = db.query(BookingRequest).filter(
-            BookingRequest.status == BookingStatus.PENDING
+        pending_bookings = db.query(Booking).filter(
+            Booking.status == BookingStatus.PENDING
         ).all()
         for booking in pending_bookings:
             actions.append({
                 "id": f"booking_{booking.id}",
                 "type": "booking_review",
                 "title": f"Booking Request #{booking.id}",
-                "description": f"New booking request from user #{booking.requester_id}",
+                "description": f"New booking request from user #{booking.user_id}",
                 "created_at": booking.created_at.isoformat() if booking.created_at else None,
                 "entity_id": booking.id,
                 "entity_type": "booking",
-                "priority": "high" if booking.budget and booking.budget > 10000 else "medium"
+                "priority": "high" if booking.total_amount and booking.total_amount > 10000 else "medium"
             })
         
         # Pending verifications

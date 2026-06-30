@@ -1,5 +1,4 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, ForeignKey, Text, JSON
-from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
 
@@ -51,6 +50,20 @@ class SportsFacility(Base):
     operating_hours = Column(JSON, nullable=True)
     booking_rules = Column(JSON, nullable=True)
     amenities = Column(JSON, nullable=True)
+    is_active = Column(Boolean, default=True)
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+
+class SportsCourt(Base):
+    __tablename__ = "sports_courts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    facility_id = Column(Integer, ForeignKey("sports_facilities.id"), nullable=False, index=True)
+
+    name = Column(String(200), nullable=False)
+    court_type = Column(String(100), nullable=True)
     is_active = Column(Boolean, default=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())

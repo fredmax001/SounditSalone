@@ -1,5 +1,7 @@
+import logging
 from typing import Generator
-from sqlalchemy import create_engine
+from contextlib import contextmanager
+from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from config import get_settings
@@ -19,8 +21,10 @@ else:
     engine = create_engine(
         settings.DATABASE_URL,
         pool_pre_ping=True,
-        pool_size=10,
-        max_overflow=20,
+        pool_size=settings.DB_POOL_SIZE,
+        max_overflow=settings.DB_MAX_OVERFLOW,
+        pool_timeout=settings.DB_POOL_TIMEOUT,
+        pool_recycle=settings.DB_POOL_RECYCLE,
     )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -39,49 +43,139 @@ def get_db() -> Generator[Session, None, None]:
         db.close()
 
 
-def init_db():
-    """Initialize database tables"""
-    # Import all models to ensure they're registered with Base
-    from models import (
-        User, OrganizerProfile, VenueProfile, BusinessProfile,
-        AdminUser, SystemConfig, AdminActivityLog, Club, FoodSpot, Venue,
-        Booking, SubscriptionTier, VenueSubscription,
-        OrganizerSubscription,
-        VerificationRequest, Event,
-        TicketTier, Ticket, Order, OrderItem, PaymentVerification,
-        EventFollow, OTPCode, OrganizerFollow,
-        Notification, Recap, RecapLike,
-    )
-    from models_platform import (
-        VenueManager, Reservation,
-        SportsFacility, SportsCalendarBlock, SportsTeam,
-        AdminRole, UserActivityLog,
-        FeaturedEvent, DisabledEvent,
-        SubscriptionPlan, UserSubscription,
-        SupportTicket, SupportTicketReply,
-    )
-    
-    # Use checkfirst=True to skip tables that already exist
-    # This prevents errors when running on an existing database
+@contextmanager
+def get_db_context() -> Generator[Session, None, None]:
+    """Context manager for database sessions with automatic rollback on error.
+
+    Useful for background tasks, scripts, and any non-FastAPI code path that
+    needs explicit transaction control.
+    """
+    db = SessionLocal()
     try:
-        Base.metadata.create_all(bind=engine, checkfirst=True)
+        yield db
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
+
+
+def check_database_health() -> dict:
+    """Check database connectivity and return status + pool stats."""
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1")).fetchone()
+
+        stats = {}
+        if not settings.DATABASE_URL.startswith("sqlite"):
+            stats = {
+                "size": engine.pool.size(),
+                "checked_in": engine.pool.checkedin(),
+                "checked_out": engine.pool.checkedout(),
+                "overflow": engine.pool.overflow(),
+            }
+
+        return {
+            "status": "healthy",
+            "connected": True,
+            "pool_stats": stats,
+        }
     except Exception as e:
-        print(f"Note during table creation: {e}")
-        # If create_all fails, try creating tables individually
-        from sqlalchemy import inspect
-        inspector = inspect(engine)
-        existing_tables = inspector.get_table_names()
-        
-        for table_name in Base.metadata.tables:
-            if table_name not in existing_tables:
-                try:
-                    table = Base.metadata.tables[table_name]
-                    table.create(engine, checkfirst=True)
-                    print(f"Created table: {table_name}")
-                except Exception as te:
-                    print(f"Could not create table {table_name}: {te}")
-    
+        logger = logging.getLogger(__name__)
+        logger.error(f"Database health check failed: {e}")
+        return {
+            "status": "unhealthy",
+            "connected": False,
+            "error": str(e),
+        }
+
+
+def init_db():
+    """Initialize database state.
+
+    For SQLite (local development), tables are created automatically from the
+    model metadata. For PostgreSQL, the application relies on Alembic
+    migrations; if tables are missing we create them as a fallback but log a
+    warning so operators know to run ``alembic upgrade head`` in production.
+    """
+    # Import all model modules to register classes with Base.metadata
+    import models  # noqa: F401
+    import models_platform  # noqa: F401
+    from sqlalchemy import inspect
+
+    is_sqlite = settings.DATABASE_URL.startswith("sqlite")
+    inspector = inspect(engine)
+    existing_tables = inspector.get_table_names()
+
+    if is_sqlite:
+        Base.metadata.create_all(bind=engine, checkfirst=True)
+    elif not existing_tables:
+        print(
+            "WARNING: PostgreSQL database has no tables. Creating schema from "
+            "models as a fallback. For production, run 'alembic upgrade head' "
+            "before starting the application."
+        )
+        Base.metadata.create_all(bind=engine, checkfirst=True)
+    else:
+        print(f"Database already has {len(existing_tables)} tables; skipping create_all. "
+              "Ensure Alembic migrations are up to date.")
+
     _seed_platform_defaults()
+    create_performance_indexes()
+
+
+def create_performance_indexes() -> None:
+    """Create critical performance indexes that are missing from the models.
+
+    These indexes target the most-queried foreign keys and filter columns.
+    They are created with IF NOT EXISTS so they are safe to run on every startup.
+    """
+    if settings.DATABASE_URL.startswith("sqlite"):
+        return
+
+    indexes = [
+        ("idx_events_organizer_id", "CREATE INDEX IF NOT EXISTS idx_events_organizer_id ON events(organizer_id)"),
+        ("idx_events_venue_id", "CREATE INDEX IF NOT EXISTS idx_events_venue_id ON events(venue_id)"),
+        ("idx_events_status", "CREATE INDEX IF NOT EXISTS idx_events_status ON events(status)"),
+        ("idx_events_city", "CREATE INDEX IF NOT EXISTS idx_events_city ON events(city)"),
+        ("idx_events_start_date", "CREATE INDEX IF NOT EXISTS idx_events_start_date ON events(start_date)"),
+        ("idx_events_is_featured", "CREATE INDEX IF NOT EXISTS idx_events_is_featured ON events(is_featured)"),
+        ("idx_ticket_tiers_event_id", "CREATE INDEX IF NOT EXISTS idx_ticket_tiers_event_id ON ticket_tiers(event_id)"),
+        ("idx_tickets_user_id", "CREATE INDEX IF NOT EXISTS idx_tickets_user_id ON tickets(user_id)"),
+        ("idx_tickets_event_id", "CREATE INDEX IF NOT EXISTS idx_tickets_event_id ON tickets(event_id)"),
+        ("idx_tickets_ticket_tier_id", "CREATE INDEX IF NOT EXISTS idx_tickets_ticket_tier_id ON tickets(ticket_tier_id)"),
+        ("idx_tickets_verified_by", "CREATE INDEX IF NOT EXISTS idx_tickets_verified_by ON tickets(verified_by_user_id)"),
+        ("idx_orders_user_id", "CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id)"),
+        ("idx_orders_payment_id", "CREATE INDEX IF NOT EXISTS idx_orders_payment_id ON orders(payment_id)"),
+        ("idx_order_items_order_id", "CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id)"),
+        ("idx_order_items_tier_id", "CREATE INDEX IF NOT EXISTS idx_order_items_tier_id ON order_items(ticket_tier_id)"),
+        ("idx_bookings_venue_id", "CREATE INDEX IF NOT EXISTS idx_bookings_venue_id ON bookings(venue_id)"),
+        ("idx_bookings_user_id", "CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON bookings(user_id)"),
+        ("idx_bookings_booking_date", "CREATE INDEX IF NOT EXISTS idx_bookings_booking_date ON bookings(booking_date)"),
+        ("idx_reservations_venue_id", "CREATE INDEX IF NOT EXISTS idx_reservations_venue_id ON restaurant_reservations(venue_id)"),
+        ("idx_reservations_user_id", "CREATE INDEX IF NOT EXISTS idx_reservations_user_id ON restaurant_reservations(user_id)"),
+        ("idx_reservations_event_id", "CREATE INDEX IF NOT EXISTS idx_reservations_event_id ON restaurant_reservations(event_id)"),
+        ("idx_notifications_user_id", "CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id)"),
+        ("idx_recaps_event_id", "CREATE INDEX IF NOT EXISTS idx_recaps_event_id ON recaps(event_id)"),
+        ("idx_recaps_organizer_id", "CREATE INDEX IF NOT EXISTS idx_recaps_organizer_id ON recaps(organizer_id)"),
+        ("idx_recap_likes_recap_id", "CREATE INDEX IF NOT EXISTS idx_recap_likes_recap_id ON recap_likes(recap_id)"),
+        ("idx_recap_likes_user_id", "CREATE INDEX IF NOT EXISTS idx_recap_likes_user_id ON recap_likes(user_id)"),
+        ("idx_reviews_club_id", "CREATE INDEX IF NOT EXISTS idx_reviews_club_id ON reviews(club_id)"),
+        ("idx_reviews_food_spot_id", "CREATE INDEX IF NOT EXISTS idx_reviews_food_spot_id ON reviews(food_spot_id)"),
+        ("idx_clubs_city", "CREATE INDEX IF NOT EXISTS idx_clubs_city ON clubs(city)"),
+        ("idx_food_spots_city", "CREATE INDEX IF NOT EXISTS idx_food_spots_city ON food_spots(city)"),
+        ("idx_food_spots_cuisine", "CREATE INDEX IF NOT EXISTS idx_food_spots_cuisine ON food_spots(cuisine_type)"),
+        ("idx_venue_profiles_user_id", "CREATE INDEX IF NOT EXISTS idx_venue_profiles_user_id ON venue_profiles(user_id)"),
+        ("idx_organizer_profiles_user_id", "CREATE INDEX IF NOT EXISTS idx_organizer_profiles_user_id ON organizer_profiles(user_id)"),
+    ]
+
+    with engine.begin() as conn:
+        for name, ddl in indexes:
+            try:
+                conn.execute(text(ddl))
+            except Exception as e:
+                print(f"Note while creating index {name}: {e}")
 
 
 def _seed_platform_defaults() -> None:
@@ -219,18 +313,24 @@ def _seed_platform_defaults() -> None:
                 for key, value in plan_data.items():
                     setattr(plan, key, value)
 
-        # Seed default Admin User
-        admin_user = db.query(AdminUser).filter(AdminUser.email == "admin").first()
-        if not admin_user:
-            admin_user = AdminUser(
-                email="admin",
-                password_hash=get_password_hash("admin123"),
-                full_name="Super Admin",
-                role=ModelAdminRole.SUPER_ADMIN,
-                status="active"
-            )
-            db.add(admin_user)
-            print("Default admin user created")
+        # Seed default Admin User only if DEFAULT_ADMIN_PASSWORD is configured
+        # This prevents creating an insecure default admin in production
+        default_admin_email = settings.DEFAULT_ADMIN_EMAIL
+        default_admin_password = settings.DEFAULT_ADMIN_PASSWORD
+        if default_admin_password:
+            admin_user = db.query(AdminUser).filter(AdminUser.email == default_admin_email).first()
+            if not admin_user:
+                admin_user = AdminUser(
+                    email=default_admin_email,
+                    password_hash=get_password_hash(default_admin_password),
+                    full_name="Super Admin",
+                    role=ModelAdminRole.SUPER_ADMIN,
+                    status="active"
+                )
+                db.add(admin_user)
+                print(f"Default admin user created: {default_admin_email}")
+        else:
+            print("DEFAULT_ADMIN_PASSWORD not set; skipping default admin creation")
 
         db.commit()
     finally:

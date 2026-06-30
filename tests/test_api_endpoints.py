@@ -1,6 +1,5 @@
 """Test all API endpoints."""
 import requests
-import json
 
 BASE_URL = "http://localhost:8000/api/v1"
 
@@ -109,8 +108,6 @@ class APITester:
         """Test venue endpoints."""
         print("\n🏢 Testing Venue Endpoints...")
         
-        headers = {"Authorization": f"Bearer {self.token}"} if self.token else {}
-        
         # List venues
         resp = requests.get(f"{BASE_URL}/venues?page=1&page_size=10")
         self.log("GET", "/venues", resp.status_code, resp.status_code == 200)
@@ -155,8 +152,6 @@ class APITester:
         """Test sports endpoints."""
         print("\n⚽ Testing Sports Endpoints...")
         
-        headers = {"Authorization": f"Bearer {self.token}"} if self.token else {}
-        
         # Get leagues
         resp = requests.get(f"{BASE_URL}/sports/leagues")
         self.log("GET", "/sports/leagues", resp.status_code, resp.status_code == 200)
@@ -172,8 +167,6 @@ class APITester:
     def test_business(self):
         """Test business endpoints."""
         print("\n💼 Testing Business Endpoints...")
-        
-        headers = {"Authorization": f"Bearer {self.token}"} if self.token else {}
         
         # Get directory
         resp = requests.get(f"{BASE_URL}/business/directory?page=1&page_size=10")
@@ -210,8 +203,6 @@ class APITester:
         """Test recap endpoints."""
         print("\n📰 Testing Recap Endpoints...")
         
-        headers = {"Authorization": f"Bearer {self.token}"} if self.token else {}
-        
         # Get recaps
         resp = requests.get(f"{BASE_URL}/recaps?page=1&page_size=10")
         self.log("GET", "/recaps", resp.status_code, resp.status_code == 200)
@@ -246,6 +237,128 @@ class APITester:
         # Get user bookings (requires auth)
         resp = requests.get(f"{BASE_URL}/bookings", headers=headers)
         self.log("GET", "/bookings", resp.status_code, resp.status_code in [200, 401])
+    
+    def test_restaurant_dashboard(self):
+        """Test restaurant dashboard endpoints."""
+        print("\n🍽️ Testing Restaurant Dashboard Endpoints...")
+        
+        headers = {"Authorization": f"Bearer {self.token}"} if self.token else {}
+        
+        # Dashboard overview (requires restaurant role)
+        resp = requests.get(f"{BASE_URL}/restaurant/dashboard", headers=headers)
+        self.log("GET", "/restaurant/dashboard", resp.status_code, resp.status_code in [200, 401, 403])
+        
+        # Reservations (requires restaurant role)
+        resp = requests.get(f"{BASE_URL}/restaurant/reservations", headers=headers)
+        self.log("GET", "/restaurant/reservations", resp.status_code, resp.status_code in [200, 401, 403])
+        
+        # Orders (requires restaurant role)
+        resp = requests.get(f"{BASE_URL}/restaurant/orders", headers=headers)
+        self.log("GET", "/restaurant/orders", resp.status_code, resp.status_code in [200, 401, 403])
+        
+        # Earnings (requires restaurant role)
+        resp = requests.get(f"{BASE_URL}/restaurant/earnings", headers=headers)
+        self.log("GET", "/restaurant/earnings", resp.status_code, resp.status_code in [200, 401, 403])
+        
+        # Settings (requires restaurant role)
+        resp = requests.get(f"{BASE_URL}/restaurant/settings", headers=headers)
+        self.log("GET", "/restaurant/settings", resp.status_code, resp.status_code in [200, 401, 403])
+        
+        # Reviews (requires restaurant role)
+        resp = requests.get(f"{BASE_URL}/restaurant/reviews", headers=headers)
+        self.log("GET", "/restaurant/reviews", resp.status_code, resp.status_code in [200, 401, 403])
+        
+        # Subscription (requires restaurant role)
+        resp = requests.get(f"{BASE_URL}/restaurant/subscription", headers=headers)
+        self.log("GET", "/restaurant/subscription", resp.status_code, resp.status_code in [200, 401, 403])
+    
+    def test_restaurant_reservations(self):
+        """Test restaurant reservation endpoints."""
+        print("\n🪑 Testing Restaurant Reservation Endpoints...")
+        
+        headers = {"Authorization": f"Bearer {self.token}"} if self.token else {}
+        
+        # Get user reservations (requires auth)
+        resp = requests.get(f"{BASE_URL}/restaurants/reservations", headers=headers)
+        self.log("GET", "/restaurants/reservations", resp.status_code, resp.status_code in [200, 401])
+        
+        # Get food spots list (public)
+        resp = requests.get(f"{BASE_URL}/foodspots")
+        self.log("GET", "/foodspots", resp.status_code, resp.status_code == 200)
+        
+        # Search food spots (public)
+        resp = requests.get(f"{BASE_URL}/foodspots/search?q=test")
+        self.log("GET", "/foodspots/search", resp.status_code, resp.status_code == 200)
+        
+        # Get food spot by ID (public)
+        spots = requests.get(f"{BASE_URL}/foodspots").json()
+        if spots and len(spots) > 0:
+            spot_id = spots[0]["id"]
+            resp = requests.get(f"{BASE_URL}/foodspots/{spot_id}")
+            self.log("GET", f"/foodspots/{spot_id}", resp.status_code, resp.status_code == 200)
+            
+            # Get food spot reviews (public)
+            resp = requests.get(f"{BASE_URL}/foodspots/{spot_id}/reviews")
+            self.log("GET", f"/foodspots/{spot_id}/reviews", resp.status_code, resp.status_code == 200)
+            
+            # Create review (requires auth)
+            resp = requests.post(
+                f"{BASE_URL}/foodspots/{spot_id}/reviews",
+                json={"rating": 5, "comment": "Test review"},
+                headers=headers
+            )
+            self.log("POST", f"/foodspots/{spot_id}/reviews", resp.status_code, resp.status_code in [200, 201, 401])
+    
+    def test_food_orders(self):
+        """Test food ordering endpoints."""
+        print("\n🥡 Testing Food Order Endpoints...")
+        
+        headers = {"Authorization": f"Bearer {self.token}"} if self.token else {}
+        
+        # Get user food orders (requires auth)
+        resp = requests.get(f"{BASE_URL}/restaurants/orders/user", headers=headers)
+        self.log("GET", "/restaurants/orders/user", resp.status_code, resp.status_code in [200, 401])
+        
+        # Create food order (requires auth + valid food spot)
+        spots = requests.get(f"{BASE_URL}/foodspots").json()
+        if spots and len(spots) > 0:
+            spot_id = spots[0]["id"]
+            resp = requests.post(
+                f"{BASE_URL}/restaurants/orders",
+                json={
+                    "food_spot_id": spot_id,
+                    "items": [{"menu_item_name": "Test Item", "quantity": 1, "price": 50}],
+                    "order_type": "dine_in"
+                },
+                headers=headers
+            )
+            self.log("POST", "/restaurants/orders", resp.status_code, resp.status_code in [200, 201, 401])
+    
+    def test_club_reviews(self):
+        """Test club review endpoints."""
+        print("\n⭐ Testing Club Review Endpoints...")
+        
+        headers = {"Authorization": f"Bearer {self.token}"} if self.token else {}
+        
+        # Get clubs list (public)
+        resp = requests.get(f"{BASE_URL}/clubs")
+        self.log("GET", "/clubs", resp.status_code, resp.status_code == 200)
+        
+        clubs = resp.json() if resp.status_code == 200 else []
+        if clubs and len(clubs) > 0:
+            club_id = clubs[0]["id"]
+            
+            # Get club reviews (public)
+            resp = requests.get(f"{BASE_URL}/clubs/{club_id}/reviews")
+            self.log("GET", f"/clubs/{club_id}/reviews", resp.status_code, resp.status_code == 200)
+            
+            # Create club review (requires auth)
+            resp = requests.post(
+                f"{BASE_URL}/clubs/{club_id}/reviews",
+                json={"rating": 4, "comment": "Great vibe!"},
+                headers=headers
+            )
+            self.log("POST", f"/clubs/{club_id}/reviews", resp.status_code, resp.status_code in [200, 201, 401])
     
     def print_summary(self):
         """Print test summary."""
@@ -291,6 +404,10 @@ def main():
         tester.test_recaps()
         tester.test_otp()
         tester.test_bookings()
+        tester.test_restaurant_dashboard()
+        tester.test_restaurant_reservations()
+        tester.test_food_orders()
+        tester.test_club_reviews()
     except Exception as e:
         print(f"\n❌ Test suite failed: {e}")
     
