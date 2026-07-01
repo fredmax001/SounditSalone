@@ -49,6 +49,8 @@ services:
       - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
       - JWT_SECRET=${JWT_SECRET:-dev-jwt-secret-change-in-production}
       - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - ENVIRONMENT=development
       - DEBUG=True
       - CORS_ORIGINS=http://localhost:3000,http://localhost:5173,http://localhost:5174,http://127.0.0.1:3000,http://127.0.0.1:5173
@@ -62,6 +64,55 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    networks:
+      - soundit-network
+
+  # Celery Worker (background tasks)
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: soundit-worker
+    restart: unless-stopped
+    command: celery -A tasks worker --loglevel=info --concurrency=2
+    environment:
+      - DATABASE_URL=postgresql://soundit:soundit_dev@db:5432/soundit_dev
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
+      - JWT_SECRET=${JWT_SECRET:-dev-jwt-secret-change-in-production}
+      - ENVIRONMENT=development
+      - DEBUG=True
+    volumes:
+      - ./:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - soundit-network
+
+  # Celery Beat (scheduled tasks - optional)
+  beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: soundit-beat
+    restart: unless-stopped
+    command: celery -A tasks beat --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql://soundit:soundit_dev@db:5432/soundit_dev
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
+      - ENVIRONMENT=development
+    volumes:
+      - ./:/app
+    depends_on:
+      - redis
     networks:
       - soundit-network
 

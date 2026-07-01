@@ -64,6 +64,8 @@ services:
       # Redis
       REDIS_URL: redis://:${REDIS_PASSWORD:?}@redis:6379/0
       REDIS_RATE_LIMIT_URL: redis://:${REDIS_PASSWORD:?}
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD:?}@redis:6379/0
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD:?}@redis:6379/0
       
       # Application
       ENVIRONMENT: production
@@ -147,11 +149,22 @@ services:
     environment:
       DATABASE_URL: postgresql://${DB_USER:?}:${DB_PASSWORD:?}@db:5432/${DB_NAME:?}
       REDIS_URL: redis://:${REDIS_PASSWORD:?}@redis:6379/0
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD:?}@redis:6379/0
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD:?}@redis:6379/0
       ENVIRONMENT: production
       SECRET_KEY: ${SECRET_KEY}
+      BASE_URL: ${BASE_URL:-https://api.sounditsl.com}
       SENDGRID_API_KEY: ${SENDGRID_API_KEY}
+      SENDGRID_FROM_EMAIL: ${SENDGRID_FROM_EMAIL}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      SMTP_FROM: ${SMTP_FROM}
       TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
       TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER}
+      TWILIO_VERIFY_SERVICE_SID: ${TWILIO_VERIFY_SERVICE_SID}
     depends_on:
       - db
       - redis
@@ -169,8 +182,11 @@ services:
     environment:
       DATABASE_URL: postgresql://${DB_USER:?}:${DB_PASSWORD:?}@db:5432/${DB_NAME:?}
       REDIS_URL: redis://:${REDIS_PASSWORD:?}@redis:6379/0
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD:?}@redis:6379/0
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD:?}@redis:6379/0
       ENVIRONMENT: production
       SECRET_KEY: ${SECRET_KEY}
+      BASE_URL: ${BASE_URL:-https://api.sounditsl.com}
     depends_on:
       - db
       - redis
