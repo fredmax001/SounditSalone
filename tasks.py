@@ -5,7 +5,22 @@ is sent to a Celery worker. If Redis is unreachable, the same functions are
 scheduled via FastAPI BackgroundTasks so the request still returns immediately.
 """
 import logging
+import os
+import sys
 from typing import Any, Optional
+
+# Ensure the project root is on sys.path for both the web process and Celery workers.
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+
+def _ensure_project_root() -> None:
+    """Add the project root to sys.path if needed.
+
+    Celery workers may reset sys.path between module import and task execution,
+    so task functions call this before importing project modules.
+    """
+    if PROJECT_ROOT not in sys.path:
+        sys.path.insert(0, PROJECT_ROOT)
 
 from celery import Celery
 from fastapi import BackgroundTasks
@@ -15,28 +30,16 @@ from config import get_settings
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
+_broker_url = settings.CELERY_BROKER_URL or settings.REDIS_URL
 
-def _redis_available() -> bool:
-    """Check whether the configured Redis broker is reachable."""
-    if not settings.REDIS_URL:
-        return False
-    try:
-        import redis
-
-        client = redis.from_url(settings.REDIS_URL, socket_connect_timeout=1, socket_timeout=1)
-        return client.ping()
-    except Exception:
-        return False
-
-
-# Configure Celery only when Redis is reachable; otherwise tasks fall back to
-# BackgroundTasks / synchronous execution.
+# Always create the Celery app when a broker is configured; Celery connects
+# lazily, so the worker can start before Redis is ready.
 celery_app: Optional[Celery] = None
-if _redis_available():
+if _broker_url:
     celery_app = Celery(
         "soundit",
-        broker=settings.REDIS_URL,
-        backend=settings.REDIS_URL,
+        broker=_broker_url,
+        backend=settings.CELERY_RESULT_BACKEND or _broker_url,
         include=["tasks"],
     )
     celery_app.conf.update(
@@ -51,6 +54,19 @@ if _redis_available():
     )
 
 
+def _redis_available() -> bool:
+    """Check whether the configured Redis broker is reachable right now."""
+    if not _broker_url:
+        return False
+    try:
+        import redis
+
+        client = redis.from_url(_broker_url, socket_connect_timeout=1, socket_timeout=1)
+        return client.ping()
+    except Exception:
+        return False
+
+
 def dispatch_task(
     task,
     background_tasks: Optional[BackgroundTasks] = None,
@@ -58,7 +74,7 @@ def dispatch_task(
     **kwargs: Any,
 ) -> None:
     """Send a task to Celery if available, otherwise schedule it locally."""
-    if celery_app is not None:
+    if celery_app is not None and _redis_available():
         try:
             task.delay(*args, **kwargs)
             return
@@ -76,12 +92,13 @@ def dispatch_task(
 
 
 # ---------------------------------------------------------------------------
-# Email tasks
+# Email / notification tasks
 # ---------------------------------------------------------------------------
 
-if celery_app:
+if celery_app is not None:
     @celery_app.task(bind=True, max_retries=3, default_retry_delay=60)
     def send_welcome_email_task(self, email: str, first_name: str) -> None:
+        _ensure_project_root()
         try:
             from email_service import send_welcome_email
 
@@ -93,6 +110,7 @@ if celery_app:
 
     @celery_app.task(bind=True, max_retries=3, default_retry_delay=60)
     def send_password_reset_email_task(self, email: str, token: str, first_name: str) -> None:
+        _ensure_project_root()
         try:
             from email_service import send_password_reset_email
 
@@ -104,6 +122,7 @@ if celery_app:
 
     @celery_app.task(bind=True, max_retries=3, default_retry_delay=60)
     def send_otp_email_task(self, email: str, code: str, purpose: str = "login") -> None:
+        _ensure_project_root()
         try:
             from email_service import send_otp_email
 
@@ -115,6 +134,7 @@ if celery_app:
 
     @celery_app.task(bind=True, max_retries=3, default_retry_delay=60)
     def send_contact_form_email_task(self, to_email: str, subject: str, html_body: str, text_content: Optional[str] = None) -> None:
+        _ensure_project_root()
         try:
             from email_service import send_email
 
@@ -126,6 +146,7 @@ if celery_app:
 
     @celery_app.task(bind=True, max_retries=3, default_retry_delay=60)
     def notify_organizer_and_buyer_task(self, order_id: int, ticket_ids: list, buyer_id: int, event_id: int) -> None:
+        _ensure_project_root()
         try:
             from api.payments import _notify_organizer_and_buyer_task
 
@@ -137,6 +158,7 @@ if celery_app:
 
     @celery_app.task(bind=True, max_retries=3, default_retry_delay=60)
     def send_broadcast_email_task(self, email: str, subject: str, html_body: str, text_content: str) -> None:
+        _ensure_project_root()
         try:
             from email_service import send_email
 
@@ -146,8 +168,8 @@ if celery_app:
             raise self.retry(exc=exc)
 
 else:
-    # No Redis: define no-op task objects that expose the same .run() interface
-    # so dispatch_task can fall back cleanly.
+    # No broker configured: define no-op task objects that expose the same
+    # .run() interface so dispatch_task can fall back cleanly.
     class _FallbackTask:
         def __init__(self, func):
             self.run = func
