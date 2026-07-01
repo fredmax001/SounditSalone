@@ -28,6 +28,7 @@ class APITester:
     def __init__(self):
         self.results = []
         self.token = None
+        self.refresh_token = None
     
     def log(self, method, endpoint, status, passed):
         status_icon = "✅" if passed else "❌"
@@ -73,27 +74,28 @@ class APITester:
         })
         self.log("POST", "/auth/register", resp.status_code, resp.status_code in [200, 201, 409])
         
-        # Login
+        # Login with the registered user
         resp = requests.post(f"{BASE_URL}/auth/login", json={
-            "email": "test@example.com",
-            "password": "password123"
+            "email": email,
+            "password": "TestPass123!"
         })
         passed = resp.status_code == 200
         self.log("POST", "/auth/login", resp.status_code, passed)
-        
+
         if passed:
             self.token = resp.json().get("access_token")
-        
+            self.refresh_token = resp.json().get("refresh_token")
+
         # Request password reset
         resp = requests.post(f"{BASE_URL}/auth/password-reset-request", json={
-            "email": "test@example.com"
+            "email": email
         })
         self.log("POST", "/auth/password-reset-request", resp.status_code, resp.status_code in [200, 202])
-        
-        # Refresh token (if we have one)
-        if self.token:
-            resp = requests.post(f"{BASE_URL}/auth/refresh", headers={
-                "Authorization": f"Bearer {self.token}"
+
+        # Refresh token rotation (if we have a refresh token)
+        if getattr(self, "refresh_token", None):
+            resp = requests.post(f"{BASE_URL}/auth/refresh", json={
+                "refresh_token": self.refresh_token
             })
             self.log("POST", "/auth/refresh", resp.status_code, resp.status_code == 200)
     

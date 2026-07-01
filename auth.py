@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
+import hashlib
+import uuid
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, Request, status
@@ -7,7 +9,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 import bcrypt
 from database import get_db
-from models import User, UserStatus
+from models import User, UserStatus, RefreshToken
 from config import get_settings
 
 settings = get_settings()
@@ -69,25 +71,70 @@ def create_password_reset_token(data: dict, expires_delta: Optional[timedelta] =
     return encoded_jwt
 
 
-def create_refresh_token(data: dict) -> str:
-    """Create a refresh token with longer expiry"""
-    to_encode = data.copy()
+def _hash_token(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def create_refresh_token(db: Session, data: dict) -> str:
+    """Create a refresh token with longer expiry and persist it server-side."""
+    jti = str(uuid.uuid4())
     expire = datetime.now(timezone.utc) + timedelta(days=settings.JWT_REFRESH_EXPIRATION_DAYS)
-    to_encode.update({"exp": expire, "type": "refresh"})
+    to_encode = {
+        **data,
+        "jti": jti,
+        "exp": expire,
+        "type": "refresh",
+    }
     encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
+
+    user_id = data.get("sub")
+    if user_id is not None:
+        token_hash = _hash_token(encoded_jwt)
+        db.add(
+            RefreshToken(
+                jti=jti,
+                user_id=int(user_id),
+                token_hash=token_hash,
+                expires_at=expire.replace(tzinfo=None),
+            )
+        )
+        db.commit()
+
     return encoded_jwt
 
 
-def decode_token(token: str, token_type: Optional[str] = None) -> Optional[dict]:
-    """Decode token with optional type verification"""
+def decode_token(token: str, token_type: Optional[str] = None, verify_exp: bool = True) -> Optional[dict]:
+    """Decode token with optional type verification."""
     try:
-        payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
+        options = {}
+        if not verify_exp:
+            options["verify_exp"] = False
+        payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM], options=options)
         # Verify token type if specified
         if token_type and payload.get("type") != token_type:
             return None
         return payload
     except JWTError:
         return None
+
+
+def revoke_refresh_token(db: Session, jti: str) -> None:
+    """Mark a refresh token as revoked."""
+    token = db.query(RefreshToken).filter(RefreshToken.jti == jti).first()
+    if token and token.revoked_at is None:
+        token.revoked_at = datetime.now(timezone.utc).replace(tzinfo=None)
+        db.commit()
+
+
+def revoke_all_user_refresh_tokens(db: Session, user_id: int) -> None:
+    """Revoke every active refresh token for a user."""
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    db.query(RefreshToken).filter(
+        RefreshToken.user_id == user_id,
+        RefreshToken.revoked_at.is_(None),
+        RefreshToken.expires_at > now,
+    ).update({"revoked_at": now})
+    db.commit()
 
 
 def _get_token_from_request(

@@ -10,6 +10,7 @@ from alembic import context
 
 # Import models for autogenerate support
 from database import Base
+import models  # noqa: F401 - registers all models with Base.metadata
 
 # this is the Alembic Config object
 config = context.config
